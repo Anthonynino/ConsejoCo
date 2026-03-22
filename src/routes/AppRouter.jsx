@@ -1,6 +1,6 @@
 import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
 import AppLayout from "../layout/AppLayout.jsx";
-import MemberPage from "../pages/MemberPage.jsx"
+import MemberPage from "../pages/modules/members/MemberPage.jsx";
 
 export default function AppRouter() {
   return (
@@ -8,7 +8,7 @@ export default function AppRouter() {
       <Routes>
         
         <Route element={<AppLayout />}>
-            <Route path="/miembros" element={<MemberPage />} />
+            <Route path="/" element={<MemberPage />} />
         </Route>
       </Routes>
     </BrowserRouter>
