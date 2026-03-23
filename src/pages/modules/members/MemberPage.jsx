@@ -1,7 +1,7 @@
 
 import { useState } from "react"
-import CardMember from "../components/cards/CardMember"
-import MemberModal from "../components/modal/newMemberModal"
+import CardMember from "./components/CardMember"
+import CreateMemberModal from "./components/CreateMemberModal"
 
 const MOCK_MIEMBROS = [
   { id: 1, nombre: 'Laura Martínez',  cedula: 'V-12.345.678', telefono: '0414-123-4567', correo: 'laura@correo.com', cargo: "Jefe/a",  iniciales: 'LM', color: 'bg-violet-100 text-violet-700' },
@@ -20,7 +20,7 @@ const MemberPage = () => {
   return (
   <div className=" w-full space-y-6 mx-auto p-6">
 
-    <MemberModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+    <CreateMemberModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
   {/* Header */}
   <div className="flex items-center justify-between">
     <div>

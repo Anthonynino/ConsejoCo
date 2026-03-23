@@ -1,7 +1,7 @@
 
 import { FiX,FiUpload } from 'react-icons/fi'
 
-const ModalNuevoMiembro = ({ isOpen, onClose }) => {
+const CreateMemberModal = ({ isOpen, onClose }) => {
   if (!isOpen) return null
 
   return (
@@ -92,4 +92,4 @@ const ModalNuevoMiembro = ({ isOpen, onClose }) => {
   )
 }
 
-export default ModalNuevoMiembro
+export default CreateMemberModal
