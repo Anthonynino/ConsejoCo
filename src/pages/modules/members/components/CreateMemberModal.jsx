@@ -1,95 +1,125 @@
-
-import { FiX,FiUpload } from 'react-icons/fi'
+import { FiX, FiUpload } from "react-icons/fi";
 
 const CreateMemberModal = ({ isOpen, onClose }) => {
-  if (!isOpen) return null
+  if (!isOpen) return null;
 
   return (
-    
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-2xl shadow-xl w-full max-w-md mx-4">
-        <div className="flex items-center justify-between px-6 py-2 border-b border-gray-100">
-          <h2 className="text-base font-semibold text-gray-900">Nuevo miembro</h2>
+    <div className="modal modal-open">
+      <div className="modal-box max-w-md bg-base-100 p-0 overflow-hidden border border-base-200 shadow-2xl">
+        {/* Header */}
+        <div className="flex items-center justify-between px-6 py-4 border-b border-base-200 bg-base-200/30">
+          <h2 className="text-xl font-bold text-base-content">Nuevo miembro</h2>
           <button
             onClick={onClose}
-            className="p-1.5 text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+            className="btn btn-ghost btn-sm btn-circle text-base-content/50 hover:text-error transition-colors"
           >
-            <FiX size={18} />
+            <FiX size={20} />
           </button>
         </div>
 
         {/* Formulario */}
-        <div className="px-6 py-2 space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Nombre completo</label>
+        <div className="p-6 space-y-5">
+          <div className="form-control w-full">
+            <label className="label py-1">
+              <span className="label-text font-bold text-[10px] uppercase opacity-60 tracking-wider">
+                Nombre completo
+              </span>
+            </label>
             <input
               type="text"
               placeholder="Ej: Laura Martínez"
-              className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-300"
+              className="input input-bordered w-full focus:input-primary transition-all bg-base-200/20"
             />
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Cédula / ID</label>
+          <div className="form-control w-full">
+            <label className="label py-1">
+              <span className="label-text font-bold text-[10px] uppercase opacity-60 tracking-wider">
+                Cédula / ID
+              </span>
+            </label>
             <input
               type="text"
               placeholder="Ej: V-12.345.678"
-              className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-300"
+              className="input input-bordered w-full focus:input-primary transition-all bg-base-200/20"
             />
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Teléfono</label>
-            <input
-              type="tel"
-              placeholder="Ej: 0414-123-4567"
-              className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-300"
-            />
+          <div className="grid grid-cols-2 gap-4">
+            <div className="form-control w-full">
+              <label className="label py-1">
+                <span className="label-text font-bold text-[10px] uppercase opacity-60 tracking-wider">
+                  Teléfono
+                </span>
+              </label>
+              <input
+                type="tel"
+                placeholder="0414-123-4567"
+                className="input input-bordered w-full focus:input-primary transition-all bg-base-200/20"
+              />
+            </div>
+
+            <div className="form-control w-full">
+              <label className="label py-1">
+                <span className="label-text font-bold text-[10px] uppercase opacity-60 tracking-wider">
+                  Correo
+                </span>
+              </label>
+              <input
+                type="email"
+                placeholder="correo@ejemplo.com"
+                className="input input-bordered w-full focus:input-primary transition-all bg-base-200/20"
+              />
+            </div>
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Correo</label>
-            <input
-              type="email"
-              placeholder="Ej: laura@correo.com"
-              className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-300"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Cargo / Puesto</label>
+          <div className="form-control w-full">
+            <label className="label py-1">
+              <span className="label-text font-bold text-[10px] uppercase opacity-60 tracking-wider">
+                Cargo / Puesto
+              </span>
+            </label>
             <input
               type="text"
               placeholder="Ej: Coordinador"
-              className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-300"
+              className="input input-bordered w-full focus:input-primary transition-all bg-base-200/20"
             />
           </div>
-        <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Foto</label>
-            <div className="border-2 border-dashed border-gray-200 rounded-xl p-6 flex flex-col items-center justify-center gap-2 hover:border-gray-400 transition-colors cursor-pointer">
-                <FiUpload size={20} className="text-gray-400" />
-                    <p className="text-sm text-gray-400">Haz click para subir una foto</p>
-                    <p className="text-xs text-gray-300">PNG, JPG hasta 2MB</p>
-                    <input type="file" accept="image/*" className="hidden" />
-                </div>
+
+          <div className="form-control w-full mt-2">
+            <label className="label py-1">
+              <span className="label-text font-bold text-[10px] uppercase opacity-60 tracking-wider">
+                Foto de perfil
+              </span>
+            </label>
+            <div className="group border-2 border-dashed border-base-300 rounded-xl p-8 flex flex-col items-center justify-center gap-3 hover:border-primary/50 hover:bg-primary/5 transition-all cursor-pointer">
+              <FiUpload size={24} className="text-base-content/30 group-hover:text-primary transition-colors" />
+              <div className="text-center">
+                <p className="text-xs font-bold text-base-content/70">Haz click para subir</p>
+                <p className="text-[10px] opacity-50 mt-1">PNG, JPG hasta 2MB</p>
+              </div>
+              <input type="file" accept="image/*" className="hidden" />
             </div>
+          </div>
         </div>
 
-        <div className="flex justify-end gap-2 px-6 py-4 border-t border-gray-100">
+        {/* Actions */}
+        <div className="modal-action px-6 py-4 border-t border-base-200 bg-base-200/30 mt-0 gap-3">
           <button
             onClick={onClose}
-            className="px-4 py-2 text-sm font-medium text-gray-600 border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors"
+            className="btn btn-ghost btn-sm md:btn-md capitalize font-bold"
           >
             Cancelar
           </button>
-          <button className="px-4 py-2 text-sm font-medium text-white bg-gray-900 rounded-xl hover:bg-gray-700 transition-colors">
-            Guardar
+          <button className="btn btn-neutral btn-sm md:btn-md capitalize px-8 font-bold shadow-lg shadow-neutral/20">
+            Guardar Miembro
           </button>
         </div>
-
       </div>
+      <div className="modal-backdrop bg-black/60 backdrop-blur-sm" onClick={onClose}></div>
     </div>
-  )
-}
+  );
+};
 
-export default CreateMemberModal
+
+export default CreateMemberModal;

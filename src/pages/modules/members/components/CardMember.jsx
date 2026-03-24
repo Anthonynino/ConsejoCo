@@ -1,51 +1,68 @@
 import { FaPhoneAlt } from "react-icons/fa";
 import { IoMdMail } from "react-icons/io";
-import { FiBriefcase } from 'react-icons/fi';
+import { FiBriefcase } from "react-icons/fi";
 import { MdDelete } from "react-icons/md";
 import { FaPen } from "react-icons/fa";
 
-const CardMember = ({miembro}) => {
+const CardMember = ({ miembro }) => {
   return (
-    <div className="bg-white border border-gray-200 rounded-2xl p-5 hover:border-gray-400 hover:shadow-md transition-all duration-200">
-      <div className="flex items-center gap-4 mb-4">
-        <div className={`w-12 h-12 rounded-full flex items-center justify-center text-base font-bold shrink-0 ${miembro.color}`}>
-          {miembro.iniciales}
-        </div>
-        <div className="min-w-0">
-          <p className="text-sm font-semibold text-gray-900 truncate">{miembro.nombre}</p>
-          <p className="text-xs text-gray-400 mt-0.5">{miembro.cedula}</p>
-        </div>
-        <div>
-          <button className="mx-5 text-gray-400 hover:text-gray-600 transition-colors duration-200">
-            <FaPen />
+    <div className="card bg-base-100 border border-base-200 shadow-sm hover:shadow-md transition-all duration-300">
+      <div className="card-body p-5">
+        <div className="flex items-center justify-between gap-4">
+          <div className="flex items-center gap-4">
+            <div className="avatar avatar-placeholder">
+              <div className={`${miembro.color} rounded-full w-12`}>
+                <span className="text-lg font-bold">{miembro.iniciales}</span>
+              </div>
+            </div>
+            <div>
+              <h3 className="card-title text-sm font-bold truncate max-w-[150px]">
+                {miembro.nombre}
+              </h3>
+              <p className="text-xs opacity-60 uppercase tracking-tighter">
+                {miembro.cedula}
+              </p>
+            </div>
+          </div>
+          <button className="btn btn-ghost btn-circle btn-xs text-base-content/40 hover:text-primary transition-colors">
+            <FaPen className="h-3 w-3" />
           </button>
         </div>
-      </div>
 
-      <div className="border-t border-gray-100 mb-4" />
+        <div className="divider my-1 opacity-20"></div>
 
-      <div className="space-y-2">
-        <div className="flex items-center gap-2">
-          <FaPhoneAlt className="text-xs text-gray-600" />
-          <span className="text-xs text-gray-600">{miembro.telefono}</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <IoMdMail className="text-xs text-gray-600" />
-          <span className="text-xs text-gray-600 truncate">{miembro.correo}</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <FiBriefcase className="text-xs text-gray-600" />
-          <span className="text-xs text-gray-600 truncate">{miembro.cargo}</span>
-        </div>
-        <div>
-          <button className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-red-500 border border-red-200 rounded-lg hover:bg-red-50 transition-colors">
-            <MdDelete size={14} />
-            Eliminar
-          </button>
+        <div className="space-y-4">
+          <div className="space-y-2.5">
+            <div className="flex items-center gap-3 text-xs font-medium text-base-content/70">
+              <div className="p-1.5 bg-base-200 rounded-lg">
+                <FaPhoneAlt className="text-primary" />
+              </div>
+              <span>{miembro.telefono}</span>
+            </div>
+            <div className="flex items-center gap-3 text-xs font-medium text-base-content/70">
+              <div className="p-1.5 bg-base-200 rounded-lg">
+                <IoMdMail className="text-primary text-base" />
+              </div>
+              <span className="truncate max-w-[180px]">{miembro.correo}</span>
+            </div>
+            <div className="flex items-center gap-3 text-xs font-medium text-base-content/70">
+              <div className="p-1.5 bg-base-200 rounded-lg">
+                <FiBriefcase className="text-primary text-base" />
+              </div>
+              <span>{miembro.cargo}</span>
+            </div>
+          </div>
+
+          <div className="card-actions">
+            <button className="btn btn-outline btn-error btn-sm btn-block hover:shadow-lg hover:shadow-error/20 transition-all gap-2 lowercase font-bold">
+              <MdDelete className="text-lg" />
+              Eliminar
+            </button>
+          </div>
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default CardMember
+export default CardMember;
