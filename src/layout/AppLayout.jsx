@@ -14,12 +14,12 @@ import {
 const navigation = [
   { name: "Dashboard", path: "/", icon: FaHome },
   { name: "CLAP", path: "/clap", icon: FaBoxes },
-  { name: "Proyectos", path: "/proyectos", icon: FaProjectDiagram },
-  { name: "Habitantes", path: "/habitantes", icon: FaUsers },
-  { name: "Actas", path: "/actas", icon: FaFileAlt },
-  { name: "Documentos", path: "/documentos", icon: FaFolderOpen },
-  { name: "Finanzas", path: "/finanzas", icon: FaChartLine },
-  { name: "Miembros", path: "/miembros", icon: FaUserCog },
+  { name: "Proyectos", path: "/projects", icon: FaProjectDiagram },
+  { name: "Habitantes", path: "/residents", icon: FaUsers },
+  { name: "Actas", path: "/minutes", icon: FaFileAlt },
+  { name: "Documentos", path: "/documents", icon: FaFolderOpen },
+  { name: "Finanzas", path: "/finances", icon: FaChartLine },
+  { name: "Miembros", path: "/members", icon: FaUserCog },
 ];
 
 const AppLayout = () => {
