@@ -1,4 +1,4 @@
-import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
 import AppLayout from "../layout/AppLayout.jsx";
 import MemberPage from "../pages/modules/members/MemberPage.jsx";
 import ClapPage from "../pages/modules/clap/clapPage.jsx";
@@ -18,6 +18,7 @@ export default function AppRouter() {
           <Route path="/residents" element={<ResidentPage />} />
           <Route path="/minutes" element={<MinutePage />} />
           <Route path="/documents" element={<DocumentPage />} />
+          
         </Route>
       </Routes>
     </BrowserRouter>

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { FaUsers, FaUserPlus, FaSearch, FaEllipsisV } from "react-icons/fa";
+import { FaUserPlus, FaSearch, FaEllipsisV } from "react-icons/fa";
 import RegisterBeneficiaryModal from "./RegisterBeneficiaryModal";
 
 const MOCK_FAMILIES = [
@@ -16,27 +16,15 @@ const ClapBeneficiaries = () => {
       <RegisterBeneficiaryModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
 
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <h3 className="text-xl font-bold text-base-content flex items-center gap-2">
-            <FaUsers className="text-primary" /> Registro de Beneficiarios
-          </h3>
-          <p className="text-sm text-base-content/60">Familias calificadas para el programa</p>
-        </div>
         <div className="flex gap-2">
-          <div className="relative">
+          <div className="relative w-full md:w-80">
             <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 opacity-30 h-3 w-3" />
             <input 
               type="text" 
               placeholder="Buscar familia..." 
-              className="input input-sm input-bordered pl-9 w-48 md:w-64"
+              className="input input-bordered input-sm w-full pl-9 focus:input-primary transition-all bg-base-200/20"
             />
           </div>
-          <button 
-            className="btn btn-neutral btn-sm gap-2"
-            onClick={() => setIsModalOpen(true)}
-          >
-            <FaUserPlus /> Vincular Jefe
-          </button>
         </div>
       </div>
 

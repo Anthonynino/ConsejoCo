@@ -81,12 +81,13 @@ const ProjectPage = () => {
       {/* Filters and Search */}
       <div className="flex flex-col md:flex-row gap-4 items-center justify-between border-y border-base-200 py-4">
         <div className="flex gap-2 w-full md:w-auto">
-          <div className="relative flex-1">
+          
+         <div className="relative w-full md:w-80">
             <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 opacity-30 h-3.5 w-3.5" />
             <input 
               type="text" 
               placeholder="Buscar por nombre o sector..." 
-              className="input input-bordered input-sm w-full md:w-80 pl-9 focus:input-primary transition-all bg-base-100"
+              className="input input-bordered input-sm w-full pl-9 focus:input-primary transition-all bg-base-200/20"
             />
           </div>
           <button className="btn btn-square btn-bordered btn-sm opacity-60 hover:opacity-100"><FaFilter /></button>

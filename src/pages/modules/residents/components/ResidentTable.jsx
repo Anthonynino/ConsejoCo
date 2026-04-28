@@ -1,4 +1,5 @@
-import { FaSearch, FaFilter, FaEllipsisV, FaPhoneAlt } from "react-icons/fa";
+import { FaSearch, FaFilter } from "react-icons/fa";
+import CardResident from "./CardResident";
 
 const MOCK_RESIDENTS = [
   { id: 1, name: "Laura Martínez", idNumber: "V-12.345.678", age: 34, phone: "0414-123-4567", sector: "Sector 1", headOfFamily: true },
@@ -33,63 +34,11 @@ const ResidentTable = () => {
         </div>
       </div>
 
-      {/* Table */}
-      <div className="overflow-x-auto bg-base-100 rounded-xl border border-base-200 shadow-sm">
-        <table className="table table-zebra w-full text-sm">
-          <thead>
-            <tr className="bg-base-200/30">
-              <th className="text-[10px] uppercase opacity-50 font-bold tracking-wider">Habitante</th>
-              <th className="text-[10px] uppercase opacity-50 font-bold tracking-wider">Cédula / ID</th>
-              <th className="text-[10px] uppercase opacity-50 font-bold tracking-wider text-center">Edad</th>
-              <th className="text-[10px] uppercase opacity-50 font-bold tracking-wider">Sector</th>
-              <th className="text-[10px] uppercase opacity-50 font-bold tracking-wider text-center">Rol Familiar</th>
-              <th className="text-[10px] uppercase opacity-50 font-bold tracking-wider text-right">Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            {MOCK_RESIDENTS.map((resident) => (
-              <tr key={resident.id} className="hover:bg-base-200/10 transition-colors">
-                <td>
-                  <div className="flex items-center gap-3">
-                    <div className="avatar placeholder">
-                      <div className="bg-neutral text-neutral-content rounded-lg w-8 h-8">
-                        <span className="text-xs font-bold">{resident.name.substring(0, 2).toUpperCase()}</span>
-                      </div>
-                    </div>
-                    <div>
-                      <div className="font-bold text-base-content">{resident.name}</div>
-                      <div className="text-[10px] opacity-50 flex items-center gap-1">
-                        <FaPhoneAlt size={8} /> {resident.phone}
-                      </div>
-                    </div>
-                  </div>
-                </td>
-                <td className="font-mono text-xs opacity-70 italic">{resident.idNumber}</td>
-                <td className="text-center font-medium">{resident.age} años</td>
-                <td>
-                  <span className="badge badge-ghost badge-sm text-[10px] font-bold uppercase">{resident.sector}</span>
-                </td>
-                <td className="text-center">
-                  {resident.headOfFamily ? (
-                    <span className="badge badge-primary badge-outline badge-sm text-[9px] uppercase font-extrabold tracking-tighter shadow-sm">Jefe de Familia</span>
-                  ) : (
-                    <span className="badge badge-ghost badge-sm text-[9px] uppercase font-bold opacity-60">Integrante</span>
-                  )}
-                </td>
-                <td className="text-right">
-                  <div className="dropdown dropdown-left">
-                    <label tabIndex={0} className="btn btn-ghost btn-xs btn-circle"><FaEllipsisV className="opacity-40" /></label>
-                    <ul tabIndex={0} className="dropdown-content z-1 menu p-2 shadow bg-base-100 rounded-box w-48 border border-base-200">
-                      <li><a>Editar Datos</a></li>
-                      <li><a>Ver Grupo Familiar</a></li>
-                      <li><a className="text-error">Dar de Baja</a></li>
-                    </ul>
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      {/* Grid de tarjetas */}
+      <div className="mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        {MOCK_RESIDENTS.map((resident) => (
+          <CardResident key={resident.id} resident={resident} />
+        ))}
       </div>
     </div>
   );

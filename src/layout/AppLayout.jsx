@@ -1,13 +1,13 @@
 import { Outlet, NavLink } from "react-router-dom";
 import {
-  FaBoxes, // CLAP
-  FaProjectDiagram, // Proyectos
-  FaUsers, // Habitantes
-  FaFileAlt, // Actas
-  FaFolderOpen, // Documentos
-  FaChartLine, // Finanzas
-  FaUserCog, // Miembros
-  FaHome, // Dashboard / Inicio
+  FaBoxes,
+  FaProjectDiagram,
+  FaUsers,
+  FaFileAlt,
+  FaFolderOpen,
+  FaChartLine,
+  FaUserCog,
+  FaHome,
   FaHandsHelping,
 } from "react-icons/fa";
 
@@ -19,7 +19,7 @@ const navigation = [
   { name: "Actas", path: "/minutes", icon: FaFileAlt },
   { name: "Documentos", path: "/documents", icon: FaFolderOpen },
   { name: "Finanzas", path: "/finances", icon: FaChartLine },
-  { name: "Miembros", path: "/members", icon: FaUserCog },
+  { name: "Miembros", path: "/", icon: FaUserCog },
 ];
 
 const AppLayout = () => {

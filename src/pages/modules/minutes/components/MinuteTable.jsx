@@ -1,4 +1,5 @@
-import { FaSearch, FaFilter, FaDownload, FaEye, FaCalendarAlt } from "react-icons/fa";
+import { FaSearch, FaFilter } from "react-icons/fa";
+import CardMinute from "./CardMinute";
 
 const MOCK_MINUTES = [
   { id: 1, title: "Asamblea General de Presupuesto 2024", date: "2024-03-20", type: "Ordinaria", attendance: 85, status: "Firmada" },
@@ -37,53 +38,11 @@ const MinuteTable = () => {
         </div>
       </div>
 
-      {/* Table */}
-      <div className="overflow-x-auto bg-base-100 rounded-xl border border-base-200 shadow-sm">
-        <table className="table table-zebra w-full text-sm">
-          <thead>
-            <tr className="bg-base-200/30">
-              <th className="text-[10px] uppercase opacity-50 font-bold tracking-wider">Título de la Acta</th>
-              <th className="text-[10px] uppercase opacity-50 font-bold tracking-wider text-center">Fecha</th>
-              <th className="text-[10px] uppercase opacity-50 font-bold tracking-wider text-center">Tipo</th>
-              <th className="text-[10px] uppercase opacity-50 font-bold tracking-wider text-center">Asistencia</th>
-              <th className="text-[10px] uppercase opacity-50 font-bold tracking-wider text-center">Estado</th>
-              <th className="text-[10px] uppercase opacity-50 font-bold tracking-wider text-right">Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            {MOCK_MINUTES.map((acta) => (
-              <tr key={acta.id} className="hover:bg-base-200/10 transition-colors">
-                <td>
-                  <div className="font-bold text-base-content max-w-[250px] truncate">{acta.title}</div>
-                </td>
-                <td className="text-center">
-                  <span className="flex items-center justify-center gap-2 text-xs opacity-70 italic font-mono">
-                    <FaCalendarAlt size={10} className="text-primary" /> {acta.date}
-                  </span>
-                </td>
-                <td className="text-center">
-                  <span className={`badge ${typeColors[acta.type]} badge-sm text-[9px] uppercase font-bold tracking-tighter`}>
-                    {acta.type}
-                  </span>
-                </td>
-                <td className="text-center font-medium">
-                  {acta.attendance} delegados
-                </td>
-                <td className="text-center">
-                  <span className={`badge ${acta.status === 'Firmada' ? 'badge-success' : 'badge-neutral'} badge-sm text-[9px] uppercase font-bold`}>
-                    {acta.status}
-                  </span>
-                </td>
-                <td className="text-right">
-                  <div className="flex justify-end gap-1">
-                    <button className="btn btn-ghost btn-xs btn-square text-primary" title="Ver Acta"><FaEye /></button>
-                    <button className="btn btn-ghost btn-xs btn-square text-success" title="Descargar PDF"><FaDownload /></button>
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      {/* Grid de tarjetas */}
+      <div className="mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        {MOCK_MINUTES.map((acta) => (
+          <CardMinute key={acta.id} acta={acta} typeColors={typeColors} />
+        ))}
       </div>
     </div>
   );
