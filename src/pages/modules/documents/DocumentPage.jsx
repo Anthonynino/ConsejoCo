@@ -1,20 +1,60 @@
 import { useState } from "react";
-import { FaPlus, FaFolderOpen, FaSearch, FaFilter } from "react-icons/fa";
-import DocumentStats from "./components/DocumentStats";
+import {
+  FaSearch,
+  FaFilter,
+  FaFolderOpen,
+  FaFilePdf,
+  FaFileImage,
+  FaHdd,
+} from "react-icons/fa";
 import DocumentGrid from "./components/DocumentGrid";
 import UploadDocumentModal from "./components/UploadDocumentModal";
+import HeaderModules from "../../../components/HeaderModules";
+import StadisticCard from "../../../components/StadisticCard";
+import CustomInput from "../../../components/CustomInput";
+import CustomSelect from "../../../components/CustomSelect";
 
 const DocumentPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [activeCategory, setActiveCategory] = useState("Todos");
 
-  const categories = [
+  const optionsFilter = [
     "Todos",
     "Legal",
     "Proyectos",
     "Identidad",
     "Finanzas",
     "Otros",
+  ];
+
+  const stats = [
+    {
+      label: "Total Documentos",
+      value: "156",
+      icon: FaFolderOpen,
+      color: "text-primary",
+      bg: "bg-primary/10",
+    },
+    {
+      label: "Archivos PDF",
+      value: "84",
+      icon: FaFilePdf,
+      color: "text-error",
+      bg: "bg-error/10",
+    },
+    {
+      label: "Imágenes/Soportes",
+      value: "42",
+      icon: FaFileImage,
+      color: "text-info",
+      bg: "bg-info/10",
+    },
+    {
+      label: "Espacio Usado",
+      value: "1.2 GB",
+      icon: FaHdd,
+      color: "text-warning",
+      bg: "bg-warning/10",
+    },
   ];
 
   return (
@@ -25,56 +65,26 @@ const DocumentPage = () => {
       />
 
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 overflow-hidden">
-        <div className="space-y-1">
-          <h2 className="text-2xl font-bold text-base-content tracking-tight">
-            Documentos
-          </h2>
-
-          <p className="text-sm text-base-content/60 max-w-xl">
-            Gestión y almacenamiento de la documentación oficial del consejo
-            comunal.
-          </p>
-        </div>
-
-        <button
-          onClick={() => setIsModalOpen(true)}
-          className="btn btn-neutral shadow-xl hover:shadow-neutral/20 transition-all font-bold gap-2 btn-sm md:btn-md"
-        >
-          <FaPlus /> <span className="hidden sm:inline">Subir Documento</span>
-        </button>
-      </div>
+      <HeaderModules
+        title={"Documentos"}
+        description={`Gestión y almacenamiento de la documentación oficial del consejo
+            comunal`}
+        onActionBtn={() => setIsModalOpen(true)}
+        titleBtn={"Subir Documento"}
+      />
 
       {/* Stats Dashboard */}
-      <DocumentStats />
+      <StadisticCard stats={stats} />
 
       {/* Navigation & Controls */}
-      <div className="flex flex-col md:flex-row gap-4 items-center justify-between border-y border-base-200 py-4">
-        <div className="flex gap-2 w-full md:w-auto">
-          <div className="relative w-full md:w-80">
-            <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 opacity-30 h-3.5 w-3.5" />
-            <input
-              type="text"
-              placeholder="Buscar archivos..."
-              className="input input-bordered input-sm w-full pl-9 focus:input-primary transition-all bg-base-200/20"
-            />
-          </div>
-          <button className="btn btn-square btn-bordered btn-sm opacity-60 hover:opacity-100">
-            <FaFilter />
-          </button>
-        </div>
+      <div className="flex flex-col md:flex-row gap-4 border-y border-base-200 py-4">
+        <CustomInput
+          className={"md:max-w-80"}
+          placeholder={"Buscar archivos..."}
+          icon={FaSearch}
+        />
 
-        <div className="flex gap-1.5 overflow-x-auto w-full md:w-auto pb-1 md:pb-0">
-          {categories.map((cat) => (
-            <button
-              key={cat}
-              onClick={() => setActiveCategory(cat)}
-              className={`btn btn-xs rounded-full whitespace-nowrap transition-all ${activeCategory === cat ? "btn-neutral px-4" : "btn-ghost opacity-60 hover:opacity-100"}`}
-            >
-              {cat}
-            </button>
-          ))}
-        </div>
+        <CustomSelect className={"md:max-w-80"} options={optionsFilter} />
       </div>
 
       {/* Documents Grid Section */}

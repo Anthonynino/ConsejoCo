@@ -1,67 +1,101 @@
-import { useState } from "react";
-import { FaUserPlus, FaSearch, FaEllipsisV } from "react-icons/fa";
-import RegisterBeneficiaryModal from "./RegisterBeneficiaryModal";
+import { FaSearch, FaEllipsisV } from "react-icons/fa";
+import CustomInput from "../../../../components/CustomInput";
 
 const MOCK_FAMILIES = [
-  { id: 1, head: "Laura Martínez", idNumber: "V-12.345.678", members: 4, address: "Sector 1, Casa #12", status: "Activo" },
-  { id: 2, head: "Carlos Rondón", idNumber: "V-18.765.432", members: 3, address: "Sector 2, Calle Principal", status: "Activo" },
-  { id: 3, head: "María Useche", idNumber: "V-20.111.222", members: 5, address: "Sector 1, Vereda 3", status: "Suspendido" },
+  {
+    id: 1,
+    head: "Laura Martínez",
+    idNumber: "V-12.345.678",
+    members: 4,
+    address: "Sector 1, Casa #12",
+    status: "Activo",
+  },
+  {
+    id: 2,
+    head: "Carlos Rondón",
+    idNumber: "V-18.765.432",
+    members: 3,
+    address: "Sector 2, Calle Principal",
+    status: "Activo",
+  },
+  {
+    id: 3,
+    head: "María Useche",
+    idNumber: "V-20.111.222",
+    members: 5,
+    address: "Sector 1, Vereda 3",
+    status: "Suspendido",
+  },
 ];
 
 const ClapBeneficiaries = () => {
-  const [isModalOpen, setIsModalOpen] = useState(false);
-
   return (
     <div className="space-y-6">
-      <RegisterBeneficiaryModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
-
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div className="flex gap-2">
-          <div className="relative w-full md:w-80">
-            <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 opacity-30 h-3 w-3" />
-            <input 
-              type="text" 
-              placeholder="Buscar familia..." 
-              className="input input-bordered input-sm w-full pl-9 focus:input-primary transition-all bg-base-200/20"
-            />
-          </div>
-        </div>
+      <div className="flex flex-col md:flex-row gap-4 border-y border-base-200 py-4">
+        <CustomInput
+          className={"md:w-80"}
+          placeholder={"Buscar familia..."}
+          icon={FaSearch}
+        />
       </div>
-
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {MOCK_FAMILIES.map((family) => (
-          <div key={family.id} className="card bg-base-100 border border-base-200 shadow-sm overflow-hidden flex-row">
-            <div className={`w-2 ${family.status === 'Activo' ? 'bg-success' : 'bg-error'}`}></div>
+          <div
+            key={family.id}
+            className="card bg-base-100 border border-base-200 shadow-sm overflow-hidden flex-row"
+          >
+            <div
+              className={`w-2 ${family.status === "Activo" ? "bg-success" : "bg-error"}`}
+            ></div>
             <div className="card-body p-5 flex-1">
               <div className="flex justify-between items-center">
                 <div className="flex items-center gap-3">
                   <div className="avatar placeholder">
                     <div className="bg-neutral text-neutral-content rounded-full w-10">
-                      <span className="text-xs font-bold">{family.head.substring(0, 2).toUpperCase()}</span>
+                      <span className="text-xs font-bold">
+                        {family.head.substring(0, 2).toUpperCase()}
+                      </span>
                     </div>
                   </div>
                   <div>
                     <h4 className="font-bold leading-none">{family.head}</h4>
-                    <span className="text-[10px] opacity-50 font-mono italic">{family.idNumber}</span>
+                    <span className="text-[10px] opacity-50 font-mono italic">
+                      {family.idNumber}
+                    </span>
                   </div>
                 </div>
                 <div className="dropdown dropdown-end">
-                  <label tabIndex={0} className="btn btn-ghost btn-xs btn-circle"><FaEllipsisV /></label>
-                  <ul tabIndex={0} className="dropdown-content z-1 menu p-2 shadow bg-base-100 rounded-box w-52 border border-base-200">
-                    <li><a>Ver Ficha Familiar</a></li>
-                    <li><a>Editar Información</a></li>
-                    <li><a className="text-error">Suspender Beneficio</a></li>
+                  <label
+                    tabIndex={0}
+                    className="btn btn-ghost btn-xs btn-circle"
+                  >
+                    <FaEllipsisV />
+                  </label>
+                  <ul
+                    tabIndex={0}
+                    className="dropdown-content z-1 menu p-2 shadow bg-base-100 rounded-box w-52 border border-base-200"
+                  >
+                    <li>
+                      <a>Ver Ficha Familiar</a>
+                    </li>
+                    <li>
+                      <a className="text-error">Suspender Beneficio</a>
+                    </li>
                   </ul>
                 </div>
               </div>
-              
+
               <div className="grid grid-cols-2 gap-2 mt-4 text-sm">
                 <div className="flex flex-col">
-                  <span className="text-[10px] uppercase opacity-40 font-bold">Cargas Familiares</span>
+                  <span className="text-[10px] uppercase opacity-40 font-bold">
+                    Cargas Familiares
+                  </span>
                   <span className="font-medium">{family.members} personas</span>
                 </div>
                 <div className="flex flex-col">
-                  <span className="text-[10px] uppercase opacity-40 font-bold">Dirección</span>
+                  <span className="text-[10px] uppercase opacity-40 font-bold">
+                    Dirección
+                  </span>
                   <span className="font-medium truncate">{family.address}</span>
                 </div>
               </div>

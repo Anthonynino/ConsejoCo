@@ -1,6 +1,9 @@
 import { useState } from "react";
 import CardMember from "./components/CardMember";
 import CreateMemberModal from "./components/CreateMemberModal";
+import HeaderModules from "../../../components/HeaderModules";
+import { FaSearch } from "react-icons/fa";
+import CustomInput from "../../../components/CustomInput";
 
 const MOCK_MIEMBROS = [
   {
@@ -74,21 +77,20 @@ const MemberPage = () => {
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
       />
-      
+
       {/* Header */}
-      <div className="flex items-center justify-between gap-4">
-        <div>
-          <h2 className="text-2xl font-bold text-base-content">Miembros</h2>
-          <p className="text-sm text-base-content/60 mt-0.5">
-            {MOCK_MIEMBROS.length} miembros registrados
-          </p>
-        </div>
-        <button
-          className="btn btn-neutral btn-sm md:btn-md"
-          onClick={() => setIsModalOpen(true)}
-        >
-          <span className="text-lg">+</span> Nuevo miembro
-        </button>
+      <HeaderModules
+        title={"Miembros"}
+        description={`${MOCK_MIEMBROS.length} miembros registrados`}
+        onActionBtn={() => setIsModalOpen(true)}
+        titleBtn={"Nuevo miembro"}
+      />
+      <div className="flex flex-col md:flex-row gap-4 border-y border-base-200 py-4">
+        <CustomInput
+          className={"md:w-80"}
+          placeholder={"Buscar miembro..."}
+          icon={FaSearch}
+        />
       </div>
 
       {/* Grid de tarjetas */}
@@ -100,6 +102,5 @@ const MemberPage = () => {
     </div>
   );
 };
-
 
 export default MemberPage;
