@@ -1,5 +1,6 @@
 import { FaSearch, FaEllipsisV } from "react-icons/fa";
 import CustomInput from "../../../../components/CustomInput";
+import Avatar from "../../../../components/Avatar";
 
 const MOCK_FAMILIES = [
   {
@@ -39,24 +40,18 @@ const ClapBeneficiaries = () => {
         />
       </div>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        {MOCK_FAMILIES.map((family) => (
+        {MOCK_FAMILIES.map((family, idx) => (
           <div
             key={family.id}
             className="card bg-base-100 border border-base-200 shadow-sm overflow-hidden flex-row"
           >
-            <div
-              className={`w-2 ${family.status === "Activo" ? "bg-success" : "bg-error"}`}
-            ></div>
-            <div className="card-body p-5 flex-1">
+            <div className={`card-body p-5 flex-1 border-l-8 ${family.status === "Activo" ? "border-l-success" : "border-l-error"}`}>
               <div className="flex justify-between items-center">
                 <div className="flex items-center gap-3">
-                  <div className="avatar placeholder">
-                    <div className="bg-neutral text-neutral-content rounded-full w-10">
-                      <span className="text-xs font-bold">
-                        {family.head.substring(0, 2).toUpperCase()}
-                      </span>
-                    </div>
-                  </div>
+                  <Avatar
+                    initials={family.head.substring(0, 2).toUpperCase()}
+                    idx={idx}
+                  />
                   <div>
                     <h4 className="font-bold leading-none">{family.head}</h4>
                     <span className="text-[10px] opacity-50 font-mono italic">

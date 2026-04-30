@@ -1,7 +1,8 @@
 import { FaPhoneAlt, FaPen } from "react-icons/fa";
 import { FaEllipsisV } from "react-icons/fa";
+import Avatar from "../../../../components/Avatar";
 
-const CardResident = ({ resident }) => {
+const CardResident = ({ resident, idx }) => {
   const initials = (resident.name || "")
     .split(" ")
     .filter(Boolean)
@@ -15,11 +16,7 @@ const CardResident = ({ resident }) => {
       <div className="card-body p-5">
         <div className="flex items-center justify-between gap-4">
           <div className="flex items-center gap-4 min-w-0">
-            <div className="avatar avatar-placeholder">
-              <div className="bg-neutral text-neutral-content rounded-full w-12">
-                <span className="text-lg font-bold">{initials}</span>
-              </div>
-            </div>
+            <Avatar initials={initials} idx={idx}/>
             <div className="min-w-0">
               <h3 className="card-title text-sm font-bold truncate max-w-[180px]">
                 {resident.name}

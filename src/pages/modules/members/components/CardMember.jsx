@@ -3,18 +3,15 @@ import { IoMdMail } from "react-icons/io";
 import { FiBriefcase } from "react-icons/fi";
 import { MdDelete } from "react-icons/md";
 import { FaPen } from "react-icons/fa";
+import Avatar from "../../../../components/Avatar";
 
-const CardMember = ({ miembro }) => {
+const CardMember = ({ miembro, idx }) => {
   return (
     <div className="card bg-base-100 border border-base-200 shadow-sm hover:shadow-md transition-all duration-300">
       <div className="card-body p-5">
         <div className="flex items-center justify-between gap-4">
           <div className="flex items-center gap-4">
-            <div className="avatar avatar-placeholder">
-              <div className={`${miembro.color} rounded-full w-12`}>
-                <span className="text-lg font-bold">{miembro.iniciales}</span>
-              </div>
-            </div>
+            <Avatar initials={miembro.iniciales} idx={idx}/>
             <div>
               <h3 className="card-title text-sm font-bold truncate max-w-[150px]">
                 {miembro.nombre}
