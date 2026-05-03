@@ -12,14 +12,14 @@ import {
 } from "react-icons/fa";
 
 const navigation = [
-  { name: "Dashboard", path: "/", icon: FaHome },
+  { name: "Dashboard", path: "/dashboard", icon: FaHome },
   { name: "CLAP", path: "/clap", icon: FaBoxes },
   { name: "Proyectos", path: "/projects", icon: FaProjectDiagram },
   { name: "Habitantes", path: "/residents", icon: FaUsers },
   { name: "Actas", path: "/minutes", icon: FaFileAlt },
   { name: "Documentos", path: "/documents", icon: FaFolderOpen },
   { name: "Finanzas", path: "/finances", icon: FaChartLine },
-  { name: "Miembros", path: "/", icon: FaUserCog },
+  { name: "Miembros", path: "/members", icon: FaUserCog },
 ];
 
 const AppLayout = () => {

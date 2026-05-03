@@ -1,4 +1,4 @@
-function CustomSelect({ options, className, label = "" }) {
+function CustomTextArea({ placeholder, className, label = "" }) {
   return (
     <div className={`${className} form-control w-full`}>
       {label !== "" && (
@@ -8,15 +8,12 @@ function CustomSelect({ options, className, label = "" }) {
           </span>
         </label>
       )}
-      <div className={`w-full`}>
-        <select className="select select-sm focus:select-primary w-full">
-          {options.map((opt) => (
-            <option>{opt}</option>
-          ))}
-        </select>
-      </div>
+      <textarea
+        className={`textarea textarea-bordered h-24 bg-base-200/20 focus:textarea-primary w-full block`}
+        placeholder={placeholder}
+      ></textarea>
     </div>
   );
 }
 
-export default CustomSelect;
+export default CustomTextArea;
