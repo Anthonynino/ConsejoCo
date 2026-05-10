@@ -1,6 +1,7 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import AppLayout from "../layout/AppLayout.jsx";
 import MemberPage from "../pages/modules/members/MemberPage.jsx";
+import ProceedingPage from "../pages/modules/proceedings/ProcedingsPage.jsx";
 import ClapPage from "../pages/modules/clap/clapPage.jsx";
 import ProjectPage from "../pages/modules/projects/ProjectPage.jsx";
 import ResidentPage from "../pages/modules/residents/ResidentPage.jsx";
@@ -22,6 +23,7 @@ export default function AppRouter() {
           <Route path="/minutes" element={<MinutePage />} />
           <Route path="/documents" element={<DocumentPage />} />
           <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/proceedings" element={<ProceedingPage />} />
         </Route>
       </Routes>
     </BrowserRouter>
