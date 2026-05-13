@@ -1,5 +1,7 @@
 import StadisticCard from "../../../components/StadisticCard";
 import { useState, useEffect } from "react";
+import api from "../../../services/api";
+import { useAuth } from "../../../context/AuthContext";
 import {
   FaUsers,
   FaProjectDiagram,
@@ -12,41 +14,57 @@ import {
 
 function Dashboard() {
   const [currentTime, setCurrentTime] = useState(new Date());
+  const { user } = useAuth();
+  const [consejoNombre, setConsejoNombre] = useState('Cargando...');
+  const [stats, setStats] = useState({ habitantes: 0, familias: 0, proyectos: 0 });
 
   useEffect(() => {
+    if (user?.consejoComunalId) {
+      api.get(`/consejo-comunal/${user.consejoComunalId}`)
+        .then(({ data }) => {
+          setConsejoNombre(data.data.nombre);
+          setStats({
+            habitantes: data.data._count?.habitantes || 0,
+            familias: data.data._count?.familias || 0,
+            proyectos: data.data._count?.proyectos || 0,
+          });
+        })
+        .catch(err => console.error("Error al cargar dashboard", err));
+    }
+
     const timer = setInterval(() => {
       setCurrentTime(new Date());
     }, 1000);
 
     return () => clearInterval(timer);
-  }, []);
+  }, [user?.consejoComunalId]);
 
   // Estadísticas del consejo comunal
   const statistics = [
     {
       label: "Habitantes",
-      value: "1,247",
+      value: stats.habitantes.toLocaleString("es-VE"),
       icon: FaUsers,
       color: "text-primary",
       bg: "bg-primary/10",
     },
     {
+      label: "Familias",
+      value: stats.familias.toLocaleString("es-VE"),
+      icon: FaUsers,
+      color: "text-info",
+      bg: "bg-info/10",
+    },
+    {
       label: "Proyectos Activos",
-      value: "8",
+      value: stats.proyectos.toString(),
       icon: FaProjectDiagram,
       color: "text-secondary",
       bg: "bg-secondary/10",
     },
     {
-      label: "Documentos",
-      value: "156",
-      icon: FaFileAlt,
-      color: "text-accent",
-      bg: "bg-accent/10",
-    },
-    {
       label: "Presupuesto",
-      value: "Bs. 45K",
+      value: "Bs. 0",
       icon: FaChartLine,
       color: "text-success",
       bg: "bg-success/10",
@@ -88,7 +106,7 @@ function Dashboard() {
               Bienvenido al Sistema
             </h1>
             <p className="text-lg opacity-90 mb-4">
-              Consejo Comunal "La Victoria"
+              {consejoNombre}
             </p>
             <div className="flex items-center gap-2 text-sm opacity-80">
               <FaHandsHelping className="text-xl" />
