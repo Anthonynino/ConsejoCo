@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { FaHandsHelping, FaEye, FaEyeSlash } from "react-icons/fa";
 import CustomInput from "../../components/CustomInput";
 import { useNavigate } from "react-router-dom";
@@ -10,8 +10,15 @@ const Login = () => {
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  const { login } = useAuth();
+  const { login, user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
+
+  // Redirigir al dashboard si ya hay sesión activa
+  useEffect(() => {
+    if (user && !authLoading) {
+      navigate("/dashboard", { replace: true });
+    }
+  }, [user, authLoading, navigate]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
