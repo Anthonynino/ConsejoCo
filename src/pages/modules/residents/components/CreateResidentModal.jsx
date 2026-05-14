@@ -1,9 +1,53 @@
+import { useState, useEffect } from "react";
 import CustomModal from "../../../../components/CustomModal";
 import CustomInput from "../../../../components/CustomInput";
 import CustomSelect from "../../../../components/CustomSelect";
-import CustomTextArea from "../../../../components/CustomTextArea";
 
-const CreateResidentModal = ({ isOpen, onClose }) => {
+const CreateResidentModal = ({ isOpen, onClose, onSave, initialData }) => {
+  const [formData, setFormData] = useState({
+    cedula: "",
+    nombres: "",
+    apellidos: "",
+    fechaNacimiento: "",
+    genero: "M",
+    telefono: "",
+    familiaId: "",
+  });
+
+  useEffect(() => {
+    if (initialData) {
+      setFormData({
+        cedula: initialData.cedula || "",
+        nombres: initialData.nombres || "",
+        apellidos: initialData.apellidos || "",
+        fechaNacimiento: initialData.fechaNacimiento
+          ? initialData.fechaNacimiento.split("T")[0]
+          : "",
+        genero: initialData.genero || "M",
+        telefono: initialData.telefono || "",
+      });
+    } else {
+      setFormData({
+        cedula: "",
+        nombres: "",
+        apellidos: "",
+        fechaNacimiento: "",
+        genero: "M",
+        telefono: "",
+      });
+    }
+  }, [initialData, isOpen]);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    onSave(formData);
+  };
+
   if (!isOpen) return null;
 
   return (
@@ -11,57 +55,72 @@ const CreateResidentModal = ({ isOpen, onClose }) => {
       isOpen={isOpen}
       onClose={onClose}
       widthClass={"max-w-2xl"}
-      title={"Nuevo Habitante"}
+      title={initialData ? "Editar Habitante" : "Nuevo Habitante"}
       subtitle={"Registro Integral Comunidad"}
-      actionText={"Crear Habitante"}
+      actionText={initialData ? "Actualizar Datos" : "Crear Habitante"}
+      onActionClick={handleSubmit}
     >
-      <div className="grid grid-col-1 md:grid-cols-2 gap-5">
+      <form
+        onSubmit={handleSubmit}
+        className="grid grid-col-1 md:grid-cols-2 gap-5"
+      >
         <CustomInput
-          label="Nombre Completo"
-          type="text"
-          placeholder="Ej: Marcos Antonio Pérez"
-          className="md:col-span-2"
+          label="Nombres"
+          name="nombres"
+          value={formData.nombres}
+          onChange={handleChange}
+          placeholder="Ej: Marcos Antonio"
+          required
+        />
+
+        <CustomInput
+          label="Apellidos"
+          name="apellidos"
+          value={formData.apellidos}
+          onChange={handleChange}
+          placeholder="Ej: Pérez García"
+          required
         />
 
         <CustomInput
           label="Cédula / Identidad"
-          type="text"
-          placeholder="Ej: V-22.123.456"
+          name="cedula"
+          value={formData.cedula}
+          onChange={handleChange}
+          placeholder="Ej: 22123456"
+          disabled={!!initialData}
+          required
         />
 
         <CustomInput
           label="Fecha de Nacimiento"
+          name="fechaNacimiento"
+          value={formData.fechaNacimiento}
+          onChange={handleChange}
           type="date"
+          required
         />
 
         <CustomInput
           label="Teléfono de Contacto"
+          name="telefono"
+          value={formData.telefono}
+          onChange={handleChange}
           type="tel"
           placeholder="0414-000-0000"
         />
 
-        <CustomInput
-          label="Profesión / Oficio"
-          type="text"
-          placeholder="Ej: Albañil, Estudiante..."
-        />
-
         <CustomSelect
-          label="Sexo"
-          options={["Femenino", "Masculino", "Otro"]}
+          label="Género"
+          name="genero"
+          value={formData.genero}
+          onChange={handleChange}
+          options={[
+            { label: "Masculino", value: "M" },
+            { label: "Femenino", value: "F" },
+          ]}
         />
-
-        <CustomSelect
-          label="Sector de Residencia"
-          options={["Sector 1", "Sector 2", "Sector 3"]}
-        />
-
-        <CustomTextArea
-          label="Notas Médicas / Discapacidades"
-          placeholder="Indicar si posee alguna condición de salud especial..."
-          className="md:col-span-2"
-        />
-      </div>
+      </form>
     </CustomModal>
   );
 };

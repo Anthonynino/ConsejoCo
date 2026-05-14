@@ -1,6 +1,6 @@
 import StadisticCard from "../../../components/StadisticCard";
 import { useState, useEffect } from "react";
-import api from "../../../services/api";
+import { getDashboardStats } from "../../../services/dashboard";
 import { useAuth } from "../../../context/AuthContext";
 import {
   FaUsers,
@@ -15,13 +15,17 @@ import {
 function Dashboard() {
   const [currentTime, setCurrentTime] = useState(new Date());
   const { user } = useAuth();
-  const [consejoNombre, setConsejoNombre] = useState('Cargando...');
-  const [stats, setStats] = useState({ habitantes: 0, familias: 0, proyectos: 0 });
+  const [consejoNombre, setConsejoNombre] = useState("Cargando...");
+  const [stats, setStats] = useState({
+    habitantes: 0,
+    familias: 0,
+    proyectos: 0,
+  });
 
   useEffect(() => {
     if (user?.consejoComunalId) {
-      api.get(`/consejo-comunal/${user.consejoComunalId}`)
-        .then(({ data }) => {
+      getDashboardStats(user.consejoComunalId)
+        .then((data) => {
           setConsejoNombre(data.data.nombre);
           setStats({
             habitantes: data.data._count?.habitantes || 0,
@@ -29,7 +33,7 @@ function Dashboard() {
             proyectos: data.data._count?.proyectos || 0,
           });
         })
-        .catch(err => console.error("Error al cargar dashboard", err));
+        .catch((err) => console.error("Error al cargar dashboard", err));
     }
 
     const timer = setInterval(() => {

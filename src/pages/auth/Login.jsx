@@ -3,17 +3,16 @@ import { FaHandsHelping, FaEye, FaEyeSlash } from "react-icons/fa";
 import CustomInput from "../../components/CustomInput";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
+import { toast } from "react-toastify";
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({ email: "", password: "" });
-  const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
 
   const { login, user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
 
-  // Redirigir al dashboard si ya hay sesión activa
   useEffect(() => {
     if (user && !authLoading) {
       navigate("/dashboard", { replace: true });
@@ -27,15 +26,15 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError(null);
     setLoading(true);
     try {
       await login(formData.email, formData.password);
+      toast.success("¡Bienvenido al sistema!");
       navigate("/dashboard");
     } catch (err) {
       const msg =
         err.response?.data?.message ?? "Error al iniciar sesión. Intenta de nuevo.";
-      setError(msg);
+      toast.error(msg);
     } finally {
       setLoading(false);
     }
@@ -61,13 +60,6 @@ const Login = () => {
                 La Victoria - Sistema Administrativo
               </p>
             </div>
-
-            {/* Error */}
-            {error && (
-              <div className="alert alert-error alert-sm mb-4 text-sm">
-                <span>{error}</span>
-              </div>
-            )}
 
             {/* Formulario */}
             <form onSubmit={handleSubmit} className="space-y-4">
@@ -127,4 +119,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default Login;
