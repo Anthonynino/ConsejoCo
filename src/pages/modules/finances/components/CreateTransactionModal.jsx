@@ -1,7 +1,11 @@
 import { FaTimes } from "react-icons/fa";
 import CustomInput from "../../../../components/CustomInput";
+import { useState } from "react";
 
 export default function CreateTransactionModal({ isOpen, onClose }) {
+
+  const [tipo, setTipo] = useState("ingreso");
+
   if (!isOpen) return null;
 
   return (
@@ -39,10 +43,22 @@ export default function CreateTransactionModal({ isOpen, onClose }) {
               Tipo
             </label>
             <div className="flex gap-3">
-              <button className="flex-1 py-2.5 rounded-lg border border-success/40 bg-success/10 text-success text-sm font-medium">
+              <button
+                className={`flex-1 py-2.5 rounded-lg border text-sm font-medium transition-colors${tipo === "ingreso"
+                ? "border-success/40 bg-success/10 text-success"
+                : "border-base-200 text-base-content/50 hover:border-success/40 hover:bg-success/10 hover:text-success"
+                }`}
+                onClick={() => setTipo("ingreso")}
+              >
                 Ingreso
               </button>
-              <button className="flex-1 py-2.5 rounded-lg border border-base-200 text-base-content/50 text-sm font-medium hover:border-error/40 hover:bg-error/10 hover:text-error transition-colors">
+              <button
+                className={`flex-1 py-2.5 rounded-lg border text-sm font-medium transition-colors${tipo === "egreso"
+                ? "border-error/40 bg-error/10 text-error"
+                : "border-base-200 text-base-content/50 hover:border-error/40 hover:bg-error/10 hover:text-error"
+                }`}
+                onClick={() => setTipo("egreso")}
+              >
                 Egreso
               </button>
             </div>
@@ -58,7 +74,7 @@ export default function CreateTransactionModal({ isOpen, onClose }) {
         <div className="flex gap-3 px-6 py-4 border-t border-base-200">
           <button
             onClick={onClose}
-            className="flex-1 py-2.5 rounded-lg border border-base-200 text-sm text-base-content/60 hover:bg-base-200/50 transition-colors"
+            className="flex-1 py-2.5 rounded-lg border border-base-500 text-sm text-base-content/60 hover:bg-base-200/50 transition-colors"
           >
             Cancelar
           </button>
