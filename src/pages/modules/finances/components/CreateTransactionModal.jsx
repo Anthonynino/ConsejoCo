@@ -6,6 +6,7 @@ export default function CreateTransactionModal({ isOpen, onClose }) {
 
   const [tipo, setTipo] = useState("ingreso");
 
+
   if (!isOpen) return null;
 
   return (

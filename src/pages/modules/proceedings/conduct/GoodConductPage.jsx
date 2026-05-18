@@ -1,16 +1,16 @@
-import { FaFileAlt } from "react-icons/fa";
-import HeaderModules from "../../../components/HeaderModules";
-import CustomInput from "../../../components/CustomInput";
-
 import React from 'react'
+import HeaderModules from '../../../../components/HeaderModules.jsx'
+import CustomInput from '../../../../components/CustomInput.jsx'
+import CustomTextArea from '../../../../components/CustomTextArea.jsx'
+import { FaFileAlt } from 'react-icons/fa'
 
-const ProcedingsPage = () => {
+const GoodConductPage = () => {
   return (
- <div className="w-full space-y-6 mx-auto p-6">
+  <div className="w-full space-y-6 mx-auto p-6">
 
   <HeaderModules
-    title="Cartas de residencia"
-    description="Genera e imprime cartas de residencia"
+    title="Cartas de buena conducta"
+    description="Genera e imprime cartas de buena conducta"
     titleBtn="Generar carta"
   />
 
@@ -41,7 +41,7 @@ const ProcedingsPage = () => {
         </span>
       </div>
 
-      <textarea
+      <CustomTextArea
         className="w-full h-80 mt-4 bg-transparent resize-none outline-none text-sm text-base-content/70 leading-relaxed"
         placeholder="Constancia que se expide a solicitud de parte intereasada para Fines legales, para apertura de cuenta en entidad bancaria, a los dos (02) dias del mes de junio del año dos mil veintiseis"
       />
@@ -52,5 +52,4 @@ const ProcedingsPage = () => {
   )
 }
 
-export default ProcedingsPage
-
+export default GoodConductPage
