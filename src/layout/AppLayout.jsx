@@ -18,7 +18,7 @@ const navigation = [
   { name: "CLAP", path: "/clap", icon: FaBoxes },
   { name: "Proyectos", path: "/projects", icon: FaProjectDiagram },
   { name: "Habitantes", path: "/residents", icon: FaUsers },
-  { name: "Actas", path: "/minutes", icon: FaFileAlt },
+  { name: "Actas", path: "/proceedings", icon: FaFileAlt },
   { name: "Documentos", path: "/documents", icon: FaFolderOpen },
   { name: "Finanzas", path: "/finances", icon: FaChartLine },
   { name: "Miembros", path: "/members", icon: FaUserCog },

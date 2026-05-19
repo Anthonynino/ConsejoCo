@@ -6,6 +6,7 @@ import ProceedingPage from "../pages/modules/proceedings/ProcedingsPage.jsx";
 import ClapPage from "../pages/modules/clap/clapPage.jsx";
 import ProjectPage from "../pages/modules/projects/ProjectPage.jsx";
 import ResidentPage from "../pages/modules/residents/ResidentPage.jsx";
+import FinancePage from "../pages/modules/finances/FinancePage.jsx";
 import MinutePage from "../pages/modules/minutes/MinutePage.jsx";
 import DocumentPage from "../pages/modules/documents/DocumentPage.jsx";
 import Dashboard from "../pages/modules/dashboard/dashboard.jsx";
@@ -18,11 +19,7 @@ export default function AppRouter() {
         {/* Ruta pública */}
         <Route path="/" element={<Login />} />
 
-        {/*
-          Rutas protegidas:
-          1. ProtectedRoute verifica la sesión y renderiza <Outlet />
-          2. AppLayout provee la UI (sidebar, navbar) y su propio <Outlet />
-        */}
+        {/* Rutas protegidas: */}
         <Route element={<ProtectedRoute />}>
           <Route element={<AppLayout />}>
             <Route path="/dashboard"   element={<Dashboard />} />
@@ -33,6 +30,7 @@ export default function AppRouter() {
             <Route path="/minutes"     element={<MinutePage />} />
             <Route path="/documents"   element={<DocumentPage />} />
             <Route path="/proceedings" element={<ProceedingPage />} />
+            <Route path="/finances" element={<FinancePage />} />
           </Route>
         </Route>
       </Routes>
