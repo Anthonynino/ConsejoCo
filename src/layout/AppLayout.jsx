@@ -1,4 +1,5 @@
 import { Outlet, NavLink } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 import {
   FaBoxes,
   FaProjectDiagram,
@@ -9,6 +10,7 @@ import {
   FaUserCog,
   FaHome,
   FaHandsHelping,
+  FaSignOutAlt,
 } from "react-icons/fa";
 
 const navigation = [
@@ -23,6 +25,12 @@ const navigation = [
 ];
 
 const AppLayout = () => {
+  const { logout } = useAuth();
+
+  const handleLogout = async () => {
+    await logout();
+  };
+
   return (
     <div className="drawer lg:drawer-open">
       <input id="sidebar-drawer" type="checkbox" className="drawer-toggle" />
@@ -86,6 +94,18 @@ const AppLayout = () => {
                 </NavLink>
               </li>
             ))}
+
+            <div className="divider my-2"></div>
+            
+            <li>
+              <button 
+                onClick={handleLogout}
+                className="flex items-center gap-3 text-error hover:bg-error hover:text-error-content"
+              >
+                <FaSignOutAlt className="text-xl" />
+                <span className="font-semibold">Cerrar Sesión</span>
+              </button>
+            </li>
           </ul>
         </aside>
       </div>

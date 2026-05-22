@@ -4,6 +4,7 @@ function CustomInput({
   icon,
   label = "",
   type = "text",
+  ...props
 }) {
   const Icon = icon;
   return (
@@ -23,6 +24,7 @@ function CustomInput({
           type={type}
           placeholder={placeholder}
           className={`${icon ? "pl-9" : ""} input input-bordered input-sm w-full focus:input-primary bg-base-200/20`}
+          {...props}
         />
       </div>
     </div>
