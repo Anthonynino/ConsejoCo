@@ -4,6 +4,7 @@ import CustomInput from "../../../../components/CustomInput";
 import { generarConstanciaResidencia } from "../../../../services/constance";
 import { useState } from "react";
 import CustomTextArea from "../../../../components/CustomTextArea";
+import { toast } from "react-toastify";
 
 const ProcedingsPage = () => {
 
@@ -21,9 +22,12 @@ const ProcedingsPage = () => {
   const handleSubtmit = async () =>{
     console.log(form)
     setLoading(true)
-    try {      await generarConstanciaResidencia(form)
+    try {      
+      await generarConstanciaResidencia(form)
+      toast.success("Constancia de residencia generada correctamente")
     } catch (error) {
       console.error("Error al generar constancia de residencia:", error);
+      toast.error("Error al generar constancia de residencia")
     } finally {
       setLoading(false)
     }
