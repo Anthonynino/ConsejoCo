@@ -1,4 +1,4 @@
-function CustomTextArea({ placeholder, className, label = "" }) {
+function CustomTextArea({ placeholder, className, label = "", value, onChange }) {
   return (
     <div className={`${className} form-control w-full`}>
       {label !== "" && (
@@ -9,8 +9,10 @@ function CustomTextArea({ placeholder, className, label = "" }) {
         </label>
       )}
       <textarea
-        className={`textarea textarea-bordered h-24 bg-base-200/20 focus:textarea-primary w-full block`}
+        className="textarea textarea-bordered h-24 bg-base-200/20 focus:textarea-primary w-full block"
         placeholder={placeholder}
+        value={value}
+        onChange={onChange}
       ></textarea>
     </div>
   );

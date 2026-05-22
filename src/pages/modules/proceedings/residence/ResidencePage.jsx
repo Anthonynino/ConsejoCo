@@ -1,18 +1,43 @@
 import { FaFileAlt } from "react-icons/fa";
 import HeaderModules from "../../../../components/HeaderModules";
 import CustomInput from "../../../../components/CustomInput";
-
-import React from 'react'
+import { generarConstanciaResidencia } from "../../../../services/constance";
+import { useState } from "react";
 import CustomTextArea from "../../../../components/CustomTextArea";
 
 const ProcedingsPage = () => {
+
+  const [form, setForm] = useState({
+    nombre: "",
+    apellido: "",
+    cedula: "",
+    ubicacion: "",
+    tiempo: "",
+    motivo:""
+  })
+
+  const [loading, setLoading] = useState(false);
+
+  const handleSubtmit = async () =>{
+    console.log(form)
+    setLoading(true)
+    try {      await generarConstanciaResidencia(form)
+    } catch (error) {
+      console.error("Error al generar constancia de residencia:", error);
+    } finally {
+      setLoading(false)
+    }
+  }
+
+
   return (
  <div className="w-full space-y-6 mx-auto p-6">
 
   <HeaderModules
     title="Cartas de residencia"
     description="Genera e imprime cartas de residencia"
-    titleBtn="Generar carta"
+    titleBtn={loading ? "Generando..." : "Generar constancia"}
+    onActionBtn={handleSubtmit}
   />
 
   <div className="flex gap-6 items-start">
@@ -26,11 +51,11 @@ const ProcedingsPage = () => {
         </span>
       </div>
 
-      <CustomInput label="Nombre" placeholder="Ej. María" />
-      <CustomInput label="Apellido" placeholder="Ej. González" />
-      <CustomInput label="Cédula" placeholder="Ej. 12345678" />
-      <CustomInput label="Ubicación" placeholder="Ej. Avenida, calle, casa, sector" />
-      <CustomInput label="Tiempo" placeholder="Ej. Hace 2 años" />
+      <CustomInput label="Nombre" placeholder="Ej. María" value={form.nombre} onChange={(e) => setForm({...form, nombre: e.target.value})} />
+      <CustomInput label="Apellido" placeholder="Ej. González" value={form.apellido} onChange={(e) => setForm({...form, apellido: e.target.value})} />
+      <CustomInput label="Cédula" placeholder="Ej. 12345678" value={form.cedula} onChange={(e) => setForm({...form, cedula: e.target.value})} />
+      <CustomInput label="Ubicación" placeholder="Ej. Avenida, calle, casa, sector" value={form.ubicacion} onChange={(e) => setForm({...form, ubicacion: e.target.value})} />
+      <CustomInput label="Tiempo" placeholder="Ej. Hace 2 años" value={form.tiempo} onChange={(e) => setForm({...form, tiempo: e.target.value})} />
     </div>
 
     {/* Vista previa */}
@@ -43,8 +68,12 @@ const ProcedingsPage = () => {
       </div>
 
       <CustomTextArea
-        className="w-full h-80 mt-4 bg-transparent resize-none outline-none text-sm text-base-content/70 leading-relaxed"
-        placeholder="Constancia que se expide a solicitud de parte intereasada para Fines legales, para apertura de cuenta en entidad bancaria, a los dos (02) dias del mes de junio del año dos mil veintiseis"
+      className="w-full h-80 mt-4 bg-transparent resize-none outline-none text-sm text-base-content/70 leading-relaxed"
+      placeholder="Constancia que se expide..."
+      value={form.motivo}
+      onChange={(e) => {
+        setForm({...form, motivo: e.target.value})
+      }}
       />
     </div>
 
