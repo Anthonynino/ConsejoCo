@@ -3,8 +3,7 @@ import AppLayout from "../layout/AppLayout.jsx";
 import ProtectedRoute from "./ProtectedRoute.jsx";
 import MemberPage from "../pages/modules/members/MemberPage.jsx";
 import ProceedingPage from "../pages/modules/proceedings/ProceedingPage.jsx";
-import ResidencePage from "../pages/modules/proceedings/residence/ResidencePage.jsx";
-import GoodConductPage from "../pages/modules/proceedings/conduct/GoodConductPage.jsx"
+
 import ClapPage from "../pages/modules/clap/clapPage.jsx";
 import ProjectPage from "../pages/modules/projects/ProjectPage.jsx";
 import ResidentPage from "../pages/modules/residents/ResidentPage.jsx";
@@ -31,8 +30,6 @@ export default function AppRouter() {
             <Route path="/minutes"     element={<MinutePage />} />
             <Route path="/documents"   element={<DocumentPage />} />
             <Route path="/proceedings" element={<ProceedingPage />} />        
-            <Route path="/proceedings/residence" element={<ResidencePage />} />
-            <Route path="/proceedings/good-conduct" element={<GoodConductPage />} />
             <Route path="/finances" element={<FinancePage />} />
           </Route>
         </Route>

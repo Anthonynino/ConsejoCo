@@ -1,51 +1,96 @@
-import { useNavigate } from "react-router-dom";
-import { FaHome, FaHandshake } from "react-icons/fa";
+import { FaFileAlt } from "react-icons/fa";
 import HeaderModules from "../../../components/HeaderModules";
-
-const proceedings = [
-  {
-    path: "/proceedings/residence",
-    icon: FaHome,
-    title: "Constancia de residencia",
-    description: "Genera una constancia que certifica la residencia de un habitante en la comunidad.",
-  },
-  {
-    path: "/proceedings/good-conduct",
-    icon: FaHandshake,
-    title: "Constancia de buena conducta",
-    description: "Genera una constancia que certifica el buen comportamiento de un habitante en la comunidad.",
-  },
-];
+import CustomInput from "../../../components/CustomInput";
+import { generarConstanciaResidencia } from "../../../services/constance";
+import { useState } from "react";
+import CustomTextArea from "../../../components/CustomTextArea";
+import { toast } from "react-toastify";
 
 const ProceedingPage = () => {
-  const navigate = useNavigate();
+
+  const [form, setForm] = useState({
+    titulo: "",
+    nombre: "",
+    apellido: "",
+    cedula: "",
+    ubicacion: "",
+    tiempo: "",
+    motivo:""
+  })
+
+  const [loading, setLoading] = useState(false);
+
+  const handleSubtmit = async () =>{
+    console.log(form)
+    setLoading(true)
+    try {      
+      await generarConstanciaResidencia(form)
+      toast.success("Constancia de residencia generada correctamente")
+    } catch (error) {
+      console.error("Error al generar constancia de residencia:", error);
+      toast.error("Error al generar constancia de residencia")
+    } finally {
+      setLoading(false)
+    }
+  }
+
 
   return (
-    <div className="w-full space-y-6 mx-auto p-6">
-      <HeaderModules
-        title="Constancias"
-        description="Selecciona el tipo de constancia que deseas generar"
-      />
+ <div className="w-full space-y-6 mx-auto p-6">
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        {proceedings.map(({ path, icon: Icon, title, description }) => (
-          <button
-            key={path}
-            onClick={() => navigate(path)}
-            className="border border-base-200 rounded-xl shadow-sm p-6 flex items-start gap-4 text-left hover:border-primary/40 hover:bg-primary/5 transition-colors group"
-          >
-            <div className="bg-primary/10 text-primary p-3 rounded-lg group-hover:bg-primary/20 transition-colors">
-              <Icon className="text-xl" />
-            </div>
-            <div className="space-y-1">
-              <p className="text-sm font-semibold text-base-content">{title}</p>
-              <p className="text-xs text-base-content/50 leading-relaxed">{description}</p>
-            </div>
-          </button>
-        ))}
+  <HeaderModules
+    title="Cartas de residencia"
+    description="Genera e imprime cartas de residencia"
+    titleBtn={loading ? "Generando..." : "Generar constancia"}
+    onActionBtn={handleSubtmit}
+  />
+
+  <div className="flex gap-6 items-start">
+
+    {/* Formulario */}
+    <div className="border border-base-200 rounded-xl p-6 space-y-5 flex-1">
+        <span className="text-sm font-medium text-base-content/60">
+          Tipo de constancia
+        </span>
+      <CustomInput label="" placeholder="residencia o buena conducta" value={form.titulo} onChange={(e) => setForm({...form, titulo: e.target.value})} />
+
+      <div className="flex items-center gap-2 pb-3 border-b border-base-200">
+        <FaFileAlt className="text-base-content/40 text-sm" />
+        <span className="text-sm font-medium text-base-content/60">
+          Datos del solicitante
+        </span>
       </div>
-    </div>
-  );
-};
 
-export default ProceedingPage;
+      <CustomInput label="Nombre" placeholder="Ej. María" value={form.nombre} onChange={(e) => setForm({...form, nombre: e.target.value})} />
+      <CustomInput label="Apellido" placeholder="Ej. González" value={form.apellido} onChange={(e) => setForm({...form, apellido: e.target.value})} />
+      <CustomInput label="Cédula" placeholder="Ej. 12345678" value={form.cedula} onChange={(e) => setForm({...form, cedula: e.target.value})} />
+      <CustomInput label="Ubicación" placeholder="Ej. Avenida, calle, casa, sector" value={form.ubicacion} onChange={(e) => setForm({...form, ubicacion: e.target.value})} />
+      <CustomInput label="Tiempo" placeholder="Ej. Hace 2 años" value={form.tiempo} onChange={(e) => setForm({...form, tiempo: e.target.value})} />
+    </div>
+
+    {/* Vista previa */}
+    <div className="border border-base-200 rounded-xl p-6 flex-1">
+      <div className="flex items-center gap-2 pb-3 border-b border-base-200">
+        <FaFileAlt className="text-base-content/40 text-sm" />
+        <span className="text-sm font-medium text-base-content/60">
+          Razon/Motivo del acta
+        </span>
+      </div>
+
+      <CustomTextArea
+      className="w-full h-80 mt-4 bg-transparent resize-none outline-none text-sm text-base-content/70 leading-relaxed"
+      placeholder="Constancia que se expide..."
+      value={form.motivo}
+      onChange={(e) => {
+        setForm({...form, motivo: e.target.value})
+      }}
+      />
+    </div>
+
+  </div>
+</div>
+  )
+}
+
+export default ProceedingPage
+

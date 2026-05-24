@@ -1,7 +1,7 @@
 import api from "./api"
 
 export const generarConstanciaResidencia = async (form) => {
-  const res = await api.post('/constancias/residencia', form, {
+  const res = await api.post('/constancias', form, {
     responseType: 'blob',
   })
   const url = URL.createObjectURL(new Blob([res.data], { type: 'application/pdf' }))
