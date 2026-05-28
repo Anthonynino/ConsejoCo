@@ -5,11 +5,12 @@ import { generarConstanciaResidencia } from "../../../services/constance";
 import { useState } from "react";
 import CustomTextArea from "../../../components/CustomTextArea";
 import { toast } from "react-toastify";
+import CustomSelect from "../../../components/CustomSelect";
 
 const ProceedingPage = () => {
 
   const [form, setForm] = useState({
-    titulo: "",
+    titulo: "residencia",
     nombre: "",
     apellido: "",
     cedula: "",
@@ -17,6 +18,7 @@ const ProceedingPage = () => {
     tiempo: "",
     motivo:""
   })
+  
 
   const [loading, setLoading] = useState(false);
 
@@ -28,7 +30,7 @@ const ProceedingPage = () => {
       toast.success("Constancia de residencia generada correctamente")
     } catch (error) {
       console.error("Error al generar constancia de residencia:", error);
-      toast.error("Error al generar constancia de residencia")
+      toast.error("Error al generar constancia de residencia, agrega todos los campos correctamente")
     } finally {
       setLoading(false)
     }
@@ -52,7 +54,7 @@ const ProceedingPage = () => {
         <span className="text-sm font-medium text-base-content/60">
           Tipo de constancia
         </span>
-      <CustomInput label="" placeholder="residencia o buena conducta" value={form.titulo} onChange={(e) => setForm({...form, titulo: e.target.value})} />
+        <CustomSelect options={["residencia", "buena conducta"]} value={form.titulo} onChange={(e) => setForm({...form, titulo: e.target.value})} />    
 
       <div className="flex items-center gap-2 pb-3 border-b border-base-200">
         <FaFileAlt className="text-base-content/40 text-sm" />
