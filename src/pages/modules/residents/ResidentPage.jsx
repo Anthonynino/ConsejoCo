@@ -29,7 +29,6 @@ const ResidentPage = () => {
       const params = {
         page,
         limit: 9,
-        /* consejoComunalId: 0, */
       };
       if (genderFilter) params.genero = genderFilter;
 
@@ -48,7 +47,9 @@ const ResidentPage = () => {
 
   useEffect(() => {
     fetchResidents();
-  }, [fetchResidents]);
+  }, [genderFilter]);
+
+  console.log(genderFilter)
 
   const handleDelete = async (id) => {
     if (!confirm("¿Estás seguro de eliminar este habitante?")) return;

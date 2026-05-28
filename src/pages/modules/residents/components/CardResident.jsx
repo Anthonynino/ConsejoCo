@@ -3,13 +3,13 @@ import { FaEllipsisV } from "react-icons/fa";
 import Avatar from "../../../../components/Avatar";
 
 const CardResident = ({ resident, idx, onDelete, onEdit }) => {
-  const fullName = `${resident.nombres} ${resident.apellidos}`;
+  const fullName = `${resident.jefe.nombres} ${resident.jefe.apellidos}`;
   
-  const initials = (resident.nombres || "")
+  const initials = (resident.jefe.nombres || "")
     .split(" ")
     .filter(Boolean)
     .slice(0, 1)
-    .concat((resident.apellidos || "").split(" ").filter(Boolean).slice(0,1))
+    .concat((resident.jefe.apellidos || "").split(" ").filter(Boolean).slice(0,1))
     .map((p) => p[0])
     .join("")
     .toUpperCase();
@@ -33,7 +33,7 @@ const CardResident = ({ resident, idx, onDelete, onEdit }) => {
                 {fullName}
               </h3>
               <p className="text-xs opacity-60 uppercase tracking-tighter">
-                V-{resident.cedula}
+                V-{resident.jefe.cedula}
               </p>
             </div>
           </div>
@@ -84,7 +84,7 @@ const CardResident = ({ resident, idx, onDelete, onEdit }) => {
               <div className="p-1.5 bg-base-200 rounded-lg">
                 <FaPhoneAlt className="text-primary" />
               </div>
-              <span>{resident.telefono || "Sin teléfono"}</span>
+              <span>{resident.jefe.telefono || "Sin teléfono"}</span>
             </div>
 
             <div className="flex items-center justify-between gap-3">
@@ -92,11 +92,11 @@ const CardResident = ({ resident, idx, onDelete, onEdit }) => {
                 <div className="p-1.5 bg-base-200 rounded-lg">
                   <span className="text-[10px] font-bold opacity-70">Edad</span>
                 </div>
-                <span>{calculateAge(resident.fechaNacimiento)} años</span>
+                <span>{calculateAge(resident.jefe.fechaNacimiento)} años</span>
               </div>
 
               <span className="badge badge-info badge-outline badge-sm text-[10px] font-bold uppercase">
-                {resident.genero === "M" ? "Masculino" : "Femenino"}
+                {resident.jefe.genero === "M" ? "Masculino" : "Femenino"}
               </span>
             </div>
 

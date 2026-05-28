@@ -1,7 +1,7 @@
 import api from "./api";
 
 export const getResidents = async (params = {}) => {
-  const { data } = await api.get("/habitante", { params });
+  const { data } = await api.get("/habitante/jerarquia", { params });
   return data;
 };
 

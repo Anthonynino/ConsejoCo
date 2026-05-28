@@ -18,7 +18,7 @@ const ResidentTable = ({
   const [search, setSearch] = useState("");
 
   const filteredResidents = residents.filter((resident) => {
-    const fullName = `${resident.nombres} ${resident.apellidos}`.toLowerCase();
+    const fullName = `${resident.jefe.nombres} ${resident.jefe.apellidos}`.toLowerCase();
     const cedula = (resident.cedula || "").toLowerCase();
     return (
       fullName.includes(search.toLowerCase()) ||
