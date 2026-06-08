@@ -1,11 +1,11 @@
-import { FaPhoneAlt } from "react-icons/fa";
+import { FaCalendarAlt, FaCheckCircle, FaTimesCircle } from "react-icons/fa";
 import { IoMdMail } from "react-icons/io";
 import { FiBriefcase } from "react-icons/fi";
 import { MdDelete } from "react-icons/md";
 import { FaPen } from "react-icons/fa";
 import Avatar from "../../../../components/Avatar";
 
-const CardMember = ({ miembro, idx }) => {
+const CardMember = ({ miembro, idx, onEdit, onDelete }) => {
   return (
     <div className="card bg-base-100 border border-base-200 shadow-sm hover:shadow-md transition-all duration-300">
       <div className="card-body p-5">
@@ -21,7 +21,9 @@ const CardMember = ({ miembro, idx }) => {
               </p>
             </div>
           </div>
-          <button className="btn btn-ghost btn-circle btn-xs text-base-content/40 hover:text-primary transition-colors">
+          <button 
+            onClick={onEdit}
+            className="btn btn-ghost btn-circle btn-xs text-base-content/40 hover:text-primary transition-colors">
             <FaPen className="h-3 w-3" />
           </button>
         </div>
@@ -32,9 +34,9 @@ const CardMember = ({ miembro, idx }) => {
           <div className="space-y-2.5">
             <div className="flex items-center gap-3 text-xs font-medium text-base-content/70">
               <div className="p-1.5 bg-base-200 rounded-lg">
-                <FaPhoneAlt className="text-primary" />
+                <FaCalendarAlt className="text-primary" />
               </div>
-              <span>{miembro.telefono}</span>
+              <span>Miembro desde: {miembro.fechaCreacion}</span>
             </div>
             <div className="flex items-center gap-3 text-xs font-medium text-base-content/70">
               <div className="p-1.5 bg-base-200 rounded-lg">
@@ -48,10 +50,18 @@ const CardMember = ({ miembro, idx }) => {
               </div>
               <span>{miembro.cargo}</span>
             </div>
+            <div className={`flex items-center gap-3 text-xs font-medium ${miembro.activo ? 'text-success/70' : 'text-error/70'}`}>
+              <div className="p-1.5 bg-base-200 rounded-lg">
+                {miembro.activo ? <FaCheckCircle className="text-success text-base" /> : <FaTimesCircle className="text-error text-base" /> }
+              </div>
+              <span>{miembro.activo ? 'Activo' : 'Inactivo'}</span>
+            </div>
           </div>
 
           <div className="card-actions">
-            <button className="btn btn-outline btn-error btn-sm btn-block hover:shadow-lg hover:shadow-error/20 transition-all gap-2 lowercase font-bold">
+            <button 
+              onClick={onDelete}
+              className="btn btn-outline btn-error btn-sm btn-block hover:shadow-lg hover:shadow-error/20 transition-all gap-2 lowercase font-bold">
               <MdDelete className="text-lg" />
               Eliminar
             </button>

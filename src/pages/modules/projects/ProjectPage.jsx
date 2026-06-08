@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   FaSearch,
   FaProjectDiagram,
@@ -11,49 +11,17 @@ import HeaderModules from "../../../components/HeaderModules";
 import StadisticCard from "../../../components/StadisticCard";
 import CustomInput from "../../../components/CustomInput";
 import CustomSelect from "../../../components/CustomSelect";
+import { getProjects, deleteProject } from "../../../services/projects";
 
 const ProjectPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingProject, setEditingProject] = useState(null);
-
-  const MOCK_PROJECTS = [
-    {
-      id: 1,
-      nombre: "Reparación de Alumbrado Público",
-      descripcion:
-        "Sustitución de 50 luminarias LED en las calles principales del sector 1 para mejorar la seguridad nocturna.",
-      estado: "EN_EJECUCION",
-      prioridad: "ALTA",
-      ubicacion_sector: "Sector 1 - Calles 1 a 5",
-      fecha_inicio: "2024-01-10",
-      fecha_fin_estimada: "2024-05-20",
-      presupuesto_total: 5000.0,
-    },
-    {
-      id: 2,
-      nombre: "Censo de Viviendas y Familias",
-      descripcion:
-        "Actualización de los datos socioeconómicos de todas las familias residentes para los programas sociales del estado.",
-      estado: "COMPLETADO",
-      prioridad: "MEDIA",
-      ubicacion_sector: "Toda la comunidad",
-      fecha_inicio: "2023-11-01",
-      fecha_fin_estimada: "2024-03-12",
-      presupuesto_total: 1200.0,
-    },
-    {
-      id: 3,
-      nombre: "Impermeabilización del Bloque 3",
-      descripcion:
-        "Trabajos de mantenimiento y aplicación de manto asfáltico en la azotea del edificio para evitar filtraciones.",
-      estado: "PLANIFICADO",
-      prioridad: "ALTA",
-      ubicacion_sector: "Bloque 3, Sector Central",
-      fecha_inicio: "2024-06-01",
-      fecha_fin_estimada: "2024-06-15",
-      presupuesto_total: 2500.0,
-    },
-  ];
+  const [projects, setProjects] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filterEstado, setFilterEstado] = useState("");
+  const [filterPrioridad, setFilterPrioridad] = useState("");
 
   const stats = [
     {
@@ -79,14 +47,49 @@ const ProjectPage = () => {
     },
   ];
 
-  const optionsFilter = [
-    "Todos",
-    "Planificado",
-    "En Ejecución",
-    "En Pausa",
-    "Completado",
-    "Cancelado",
+  const optionsEstado = [
+    { value: "", label: "Todos" },
+    { value: "PLANIFICADO", label: "Planificado" },
+    { value: "EN_EJECUCION", label: "En Ejecución" },
+    { value: "EN_PAUSA", label: "En Pausa" },
+    { value: "COMPLETADO", label: "Completado" },
+    { value: "CANCELADO", label: "Cancelado" },
   ];
+
+  const optionsPrioridad = [
+    { value: "", label: "Todas" },
+    { value: "ALTA", label: "Alta" },
+    { value: "MEDIA", label: "Media" },
+    { value: "BAJA", label: "Baja" },
+  ];
+
+  // Fetch projects on component mount
+  useEffect(() => {
+    const fetchProjects = async () => {
+      try {
+        setLoading(true);
+        const data = await getProjects({
+          estado: filterEstado || undefined,
+          prioridad: filterPrioridad || undefined,
+          page: 1,
+          limit: 50,
+        });
+        setProjects(data.data);
+      } catch (err) {
+        setError("Error al cargar los proyectos");
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProjects();
+  }, [filterEstado, filterPrioridad]);
+
+  // Filter projects based on search term
+  const filteredProjects = projects.filter((project) =>
+    project.nombre.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   const handleEdit = (project) => {
     setEditingProject(project);
@@ -98,6 +101,61 @@ const ProjectPage = () => {
     setIsModalOpen(true);
   };
 
+  const handleModalSuccess = () => {
+    // Refresh the project list after successful create/update
+    const fetchProjects = async () => {
+      try {
+        setLoading(true);
+        const data = await getProjects({
+          estado: filterEstado || undefined,
+          prioridad: filterPrioridad || undefined,
+          page: 1,
+          limit: 50,
+        });
+        setProjects(data.data);
+      } catch (err) {
+        setError("Error al cargar los proyectos");
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProjects();
+  };
+
+  const handleDelete = async (project) => {
+    if (!confirm(`¿Estás seguro de eliminar el proyecto "${project.nombre}"?`)) {
+      return;
+    }
+
+    try {
+      await deleteProject(project.id);
+      // Refresh the project list after successful delete
+      const fetchProjects = async () => {
+        try {
+          setLoading(true);
+          const data = await getProjects({
+            estado: filterEstado || undefined,
+            prioridad: filterPrioridad || undefined,
+            page: 1,
+            limit: 50,
+          });
+          setProjects(data.data);
+        } catch (err) {
+          setError("Error al cargar los proyectos");
+          console.error(err);
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      fetchProjects();
+    } catch (error) {
+      console.error("Error al eliminar proyecto:", error);
+    }
+  };
+
   return (
     <div className="w-full space-y-6 mx-auto p-6">
       <CreateProjectModal
@@ -107,6 +165,7 @@ const ProjectPage = () => {
           setEditingProject(null);
         }}
         initialData={editingProject}
+        onSuccess={handleModalSuccess}
       />
 
       {/* Header */}
@@ -127,27 +186,62 @@ const ProjectPage = () => {
           className={"md:max-w-80"}
           placeholder={"Buscar por nombre"}
           icon={FaSearch}
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
         />
         <CustomSelect
           label="Filtrar por estado"
           className={"md:max-w-80"}
-          options={optionsFilter}
+          options={optionsEstado.map((opt) => opt.label)}
+          value={optionsEstado.find((opt) => opt.value === filterEstado)?.label || ""}
+          onChange={(e) => {
+            const selected = optionsEstado.find((opt) => opt.label === e.target.value);
+            setFilterEstado(selected?.value || "");
+          }}
+        />
+        <CustomSelect
+          label="Filtrar por prioridad"
+          className={"md:max-w-80"}
+          options={optionsPrioridad.map((opt) => opt.label)}
+          value={optionsPrioridad.find((opt) => opt.value === filterPrioridad)?.label || ""}
+          onChange={(e) => {
+            const selected = optionsPrioridad.find((opt) => opt.label === e.target.value);
+            setFilterPrioridad(selected?.value || "");
+          }}
         />
       </div>
 
-      {/* Projects Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-        {MOCK_PROJECTS.map((project) => (
-          <ProjectCard
-            key={project.id}
-            project={project}
-            onEdit={() => handleEdit(project)}
-          />
-        ))}
-      </div>
+      {/* Loading State */}
+      {loading && (
+        <div className="flex flex-col items-center justify-center py-20 opacity-60 space-y-4">
+          <span className="loading loading-spinner loading-lg text-primary"></span>
+          <p className="text-lg font-bold">Cargando proyectos...</p>
+        </div>
+      )}
 
-      {/* Empty State Mock (if no projects) */}
-      {MOCK_PROJECTS.length === 0 && (
+      {/* Error State */}
+      {error && (
+        <div className="alert alert-error">
+          <span>{error}</span>
+        </div>
+      )}
+
+      {/* Projects Grid */}
+      {!loading && !error && (
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+          {filteredProjects.map((project) => (
+            <ProjectCard
+              key={project.id}
+              project={project}
+              onEdit={() => handleEdit(project)}
+              onDelete={handleDelete}
+            />
+          ))}
+        </div>
+      )}
+
+      {/* Empty State (if no projects) */}
+      {!loading && !error && filteredProjects.length === 0 && (
         <div className="flex flex-col items-center justify-center py-20 opacity-40 grayscale space-y-4">
           <FaProjectDiagram size={64} />
           <p className="text-lg font-bold">No hay proyectos registrados aún.</p>

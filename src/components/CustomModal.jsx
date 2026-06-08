@@ -1,6 +1,6 @@
 import { FiX } from "react-icons/fi";
 
-function CustomModal({ isOpen, onClose, children, widthClass, title, subtitle, actionText = "Aceptar" }) {
+function CustomModal({ isOpen, onClose, children, widthClass, title, subtitle, actionText = "Aceptar", onAction }) {
   if (!isOpen) return null;
   return (
     <div className="modal modal-open">
@@ -29,7 +29,10 @@ function CustomModal({ isOpen, onClose, children, widthClass, title, subtitle, a
           >
             Cancelar
           </button>
-          <button className="btn btn-neutral btn-sm md:btn-md capitalize font-bold shadow-lg shadow-neutral/20">
+          <button
+            onClick={onAction}
+            className="btn btn-neutral btn-sm md:btn-md capitalize font-bold shadow-lg shadow-neutral/20"
+          >
             {actionText}
           </button>
         </div>

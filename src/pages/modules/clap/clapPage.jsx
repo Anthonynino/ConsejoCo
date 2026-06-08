@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import HeaderModules from "../../../components/HeaderModules";
 import { toast } from "react-toastify";
 import { 
@@ -13,6 +13,7 @@ import {
   FaTrash
 } from "react-icons/fa";
 import CustomInput from "../../../components/CustomInput";
+import { createCensus, getCensuses, updateCensus } from "../../../services/censuses";
 
 const MOCK_FAMILIES = [
   { id: 1, cedula: "V-12.345.678", nombres: "Juan", apellidos: "Pérez" },
@@ -25,36 +26,45 @@ const MOCK_FAMILIES = [
   { id: 8, cedula: "V-89.012.345", nombres: "Elena", apellidos: "Morales" },
 ];
 
-const INITIAL_CENSUSES = [
-  {
-    id: 1,
-    fechaInicio: "2024-05-10",
-    totalFamilias: 5,
-    fechaCreacion: "2024-05-01",
-    estado: "pendiente",
-    familias: [1, 2, 3, 4, 5],
-    entregas: {}, // idFamilia: boolean
-  },
-  {
-    id: 2,
-    fechaInicio: "2024-04-15",
-    totalFamilias: 3,
-    fechaCreacion: "2024-04-10",
-    estado: "finalizado",
-    familias: [1, 2, 3],
-    entregas: { 1: true, 2: true, 3: true },
-  }
-];
+const mapApiCensusToState = (censo) => ({
+  id: censo.id,
+  fechaInicio: censo.fecha ? censo.fecha.split("T")[0] : "",
+  totalFamilias: censo._count?.familias ?? censo.familias?.length ?? 0,
+  fechaCreacion: censo.fechaCreacion ? censo.fechaCreacion.split("T")[0] : "",
+  estado: censo.estado === "EN_ESPERA" ? "pendiente" : censo.estado === "FINALIZADO" ? "finalizado" : censo.estado?.toLowerCase() ?? "pendiente",
+  familias: censo.familias?.map((item) => item.familiaId ?? item.id) ?? [],
+  entregas: {},
+});
 
 const ClapPage = () => {
   const [view, setView] = useState("LIST"); // LIST, FORM, DELIVERY
-  const [censuses, setCensuses] = useState(INITIAL_CENSUSES);
+  const [censuses, setCensuses] = useState([]);
   const [selectedCensus, setSelectedCensus] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [isSaving, setIsSaving] = useState(false);
   
   // States for the creation/edit form
   const [formSelectedFamilies, setFormSelectedFamilies] = useState([]);
   const [fechaInicio, setFechaInicio] = useState("");
+
+  useEffect(() => {
+    const fetchCensuses = async () => {
+      try {
+        const response = await getCensuses(1);
+        const payload = response?.data ?? response;
+        const censusList = Array.isArray(payload)
+          ? payload
+          : payload?.data ?? [];
+        const censusesFromApi = censusList.map(mapApiCensusToState);
+        setCensuses(censusesFromApi);
+      } catch (error) {
+        console.error("Error fetching censuses:", error);
+        toast.error("Error al cargar los censos");
+      }
+    };
+
+    fetchCensuses();
+  }, []);
 
   const handleCreateNew = () => {
     setSelectedCensus(null);
@@ -83,7 +93,7 @@ const ClapPage = () => {
     );
   };
 
-  const handleSaveCensus = () => {
+  const handleSaveCensus = async () => {
     if (formSelectedFamilies.length === 0) {
       toast.error("Debe seleccionar al menos una familia");
       return;
@@ -93,30 +103,53 @@ const ClapPage = () => {
       return;
     }
 
-    if (selectedCensus) {
-      // Edit
-      setCensuses(prev => prev.map(c => c.id === selectedCensus.id ? {
-        ...c,
-        fechaInicio,
-        totalFamilias: formSelectedFamilies.length,
-        familias: formSelectedFamilies
-      } : c));
-      toast.success("Censo actualizado correctamente");
-    } else {
-      // Create
-      const newCensus = {
-        id: Date.now(),
-        fechaInicio,
-        totalFamilias: formSelectedFamilies.length,
-        fechaCreacion: new Date().toISOString().split('T')[0],
-        estado: "pendiente",
-        familias: formSelectedFamilies,
-        entregas: {}
-      };
-      setCensuses(prev => [newCensus, ...prev]);
-      toast.success("Censo creado correctamente");
+    setIsSaving(true);
+    try {
+      if (selectedCensus) {
+        const payload = {
+          fecha: fechaInicio,
+          fechaCierre: selectedCensus.fechaCierre || null,
+          estado: selectedCensus.estado === "finalizado" ? "FINALIZADO" : "EN_ESPERA"
+        };
+
+        const updatedCensus = await updateCensus(selectedCensus.id, payload);
+        const updatedPayload = updatedCensus?.data ?? updatedCensus;
+        const updatedState = mapApiCensusToState(updatedPayload);
+
+        setCensuses(prev => prev.map(c => c.id === selectedCensus.id ? {
+          ...c,
+          ...updatedState,
+          familias: formSelectedFamilies,
+          entregas: c.entregas
+        } : c));
+
+        toast.success("Censo actualizado correctamente");
+      } else {
+        const payload = {
+          fecha: fechaInicio,
+          consejoComunalId: 1,
+          familiaIds: formSelectedFamilies,
+        };
+
+        const createdCensus = await createCensus(payload);
+        const createdPayload = createdCensus?.data ?? createdCensus;
+        const createdState = mapApiCensusToState(createdPayload);
+        const newCensus = {
+          ...createdState,
+          familias: formSelectedFamilies,
+          entregas: {},
+        };
+
+        setCensuses(prev => [newCensus, ...prev]);
+        toast.success("Censo creado correctamente");
+      }
+      setView("LIST");
+    } catch (error) {
+      console.error("Error saving census:", error);
+      toast.error("Error al guardar el censo");
+    } finally {
+      setIsSaving(false);
     }
-    setView("LIST");
   };
 
   const toggleDeliveryStatus = (familyId) => {
@@ -129,14 +162,35 @@ const ClapPage = () => {
     }));
   };
 
-  const handleFinishDelivery = () => {
-    setCensuses(prev => prev.map(c => c.id === selectedCensus.id ? {
-      ...c,
-      estado: "finalizado",
-      entregas: selectedCensus.entregas
-    } : c));
-    toast.success("¡Jornada de entrega finalizada con éxito!");
-    setView("LIST");
+  const handleFinishDelivery = async () => {
+    if (!selectedCensus) return;
+
+    setIsSaving(true);
+    try {
+      const payload = {
+        fecha: selectedCensus.fechaInicio,
+        fechaCierre: new Date().toISOString().split('T')[0],
+        estado: "EN_ESPERA"
+      };
+
+      const updatedCensus = await updateCensus(selectedCensus.id, payload);
+      const updatedPayload = updatedCensus?.data ?? updatedCensus;
+      const updatedState = mapApiCensusToState(updatedPayload);
+
+      setCensuses(prev => prev.map(c => c.id === selectedCensus.id ? {
+        ...c,
+        ...updatedState,
+        entregas: selectedCensus.entregas
+      } : c));
+
+      toast.success("¡Jornada de entrega finalizada con éxito!");
+      setView("LIST");
+    } catch (error) {
+      console.error("Error finishing delivery:", error);
+      toast.error("Error al finalizar la jornada de entrega");
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const filteredFamilies = MOCK_FAMILIES.filter(f => 
@@ -256,7 +310,7 @@ const ClapPage = () => {
                 />
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 max-h-[400px] overflow-y-auto p-2">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 max-h-100 overflow-y-auto p-2">
                 {filteredFamilies.map((family) => {
                   const isSelected = formSelectedFamilies.includes(family.id);
                   return (
@@ -290,8 +344,9 @@ const ClapPage = () => {
               <button 
                 className="btn btn-primary px-8" 
                 onClick={handleSaveCensus}
+                disabled={isSaving}
               >
-                {selectedCensus ? 'Actualizar Censo' : 'Crear Censo'}
+                {isSaving ? 'Guardando...' : selectedCensus ? 'Actualizar Censo' : 'Crear Censo'}
               </button>
             </div>
           </div>
@@ -327,8 +382,9 @@ const ClapPage = () => {
               <button 
                 className="btn btn-success btn-lg gap-2"
                 onClick={handleFinishDelivery}
+                disabled={isSaving}
               >
-                <FaCheckCircle /> Terminar Jornada
+                <FaCheckCircle /> {isSaving ? 'Procesando...' : 'Terminar Jornada'}
               </button>
             </div>
           </div>
