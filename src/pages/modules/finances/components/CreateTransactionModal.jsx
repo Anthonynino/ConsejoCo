@@ -1,11 +1,49 @@
 import { FaTimes } from "react-icons/fa";
 import CustomInput from "../../../../components/CustomInput";
 import { useState } from "react";
+import { createTransaction } from "../../../../services/finances";
+import { toast } from "react-toastify";
 
-export default function CreateTransactionModal({ isOpen, onClose }) {
+export default function CreateTransactionModal({ isOpen, onClose, onSuccess }) {
 
   const [tipo, setTipo] = useState("ingreso");
+  const [form, setForm] = useState({
+    descripcion: "",
+    monto: "",
+    fecha: ""
+  });
 
+const [loading, setLoading] = useState(false);
+const handleClose = () => {
+  setForm({ descripcion: '', monto: '' })
+  setTipo('ingreso')
+  onClose()
+}
+
+const handleSubmit = async () => {
+  console.log('datos a enviar:', {
+    descripcion: form.descripcion,
+    tipo: tipo.toUpperCase(),
+    monto: Number(form.monto),
+    fecha: new Date().toISOString(),
+  })
+  setLoading(true);
+  try {
+    await createTransaction({
+      tipo: tipo.toUpperCase(),
+      descripcion: form.descripcion,
+      monto: Number(form.monto),
+      fecha: new Date().toISOString(),
+    });
+    toast.success('Movimiento registrado con éxito');
+    onSuccess();
+    handleClose();
+  } catch (error) {
+    toast.error('Error al registrar el movimiento');
+  } finally {
+    setLoading(false);
+  }
+}
 
   if (!isOpen) return null;
 
@@ -15,7 +53,7 @@ export default function CreateTransactionModal({ isOpen, onClose }) {
       {/* Overlay */}
       <div
         className="absolute inset-0 bg-black/40 backdrop-blur-sm"
-        onClick={onClose}
+        onClick={handleClose}
       />
 
       {/* Modal */}
@@ -28,7 +66,7 @@ export default function CreateTransactionModal({ isOpen, onClose }) {
             <p className="text-xs text-base-content/50 mt-0.5">Registra un ingreso o egreso</p>
           </div>
           <button
-            onClick={onClose}
+            onClick={handleClose}
             className="text-base-content/40 hover:text-base-content transition-colors p-1"
           >
             <FaTimes />
@@ -65,21 +103,29 @@ export default function CreateTransactionModal({ isOpen, onClose }) {
             </div>
           </div>
 
-          <CustomInput label="Descripción" placeholder="Ej. Aporte vecinos sector A" />
-          <CustomInput label="Monto" placeholder="Ej. 150.00" />
-          <CustomInput label="Fecha" placeholder="dd/mm/aaaa" />
+          <CustomInput label="Descripción" placeholder="Ej. Aporte vecinos sector A" 
+          value={form.descripcion}
+          onChange={(e) => setForm({ ...form, descripcion: e.target.value })}
+          />
+          <CustomInput label="Monto" placeholder="Ej. 150.00" 
+          value={form.monto}
+          onChange={(e) => setForm({ ...form, monto: e.target.value })}
+          />
 
         </div>
 
         {/* Footer */}
         <div className="flex gap-3 px-6 py-4 border-t border-base-200">
           <button
-            onClick={onClose}
+            onClick={handleClose}
             className="flex-1 py-2.5 rounded-lg border border-base-500 text-sm text-base-content/60 hover:bg-base-200/50 transition-colors"
           >
             Cancelar
           </button>
-          <button className="flex-1 py-2.5 rounded-lg bg-primary text-primary-content text-sm font-medium hover:opacity-90 transition-opacity">
+          <button className="flex-1 py-2.5 rounded-lg bg-primary text-primary-content text-sm font-medium hover:opacity-90 transition-opacity"
+            onClick={handleSubmit}
+            disabled={loading}
+          >
             Registrar
           </button>
         </div>
