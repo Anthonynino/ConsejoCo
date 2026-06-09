@@ -105,10 +105,14 @@ const handleSubmit = async () => {
 
           <CustomInput label="Descripción" placeholder="Ej. Aporte vecinos sector A" 
           value={form.descripcion}
+          onlyText
+          maxLength={50}
           onChange={(e) => setForm({ ...form, descripcion: e.target.value })}
           />
           <CustomInput label="Monto" placeholder="Ej. 150.00" 
           value={form.monto}
+          onlyDecimals
+          maxLength={10}
           onChange={(e) => setForm({ ...form, monto: e.target.value })}
           />
 
