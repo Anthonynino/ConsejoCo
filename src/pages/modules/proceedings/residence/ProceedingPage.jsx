@@ -1,13 +1,13 @@
 import { FaFileAlt } from "react-icons/fa";
-import HeaderModules from "../../../components/HeaderModules";
-import CustomInput from "../../../components/CustomInput";
-import { generarConstanciaResidencia } from "../../../services/constance";
+import HeaderModules from "../../../../components/HeaderModules";
+import CustomInput from "../../../../components/CustomInput";
+import { generarConstanciaResidencia } from "../../../../services/constance";
 import { useState } from "react";
-import CustomTextArea from "../../../components/CustomTextArea";
+import CustomTextArea from "../../../../components/CustomTextArea";
 import { toast } from "react-toastify";
-import CustomSelect from "../../../components/CustomSelect";
+import CustomSelect from "../../../../components/CustomSelect";
 
-const ProceedingPage = () => {
+const ProceedingResidencePage = () => {
 
   const [form, setForm] = useState({
     titulo: "residencia",
@@ -94,5 +94,5 @@ const ProceedingPage = () => {
   )
 }
 
-export default ProceedingPage
+export default ProceedingResidencePage
 
