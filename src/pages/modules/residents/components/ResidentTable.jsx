@@ -8,8 +8,6 @@ const ResidentTable = ({
   residents = [],
   onDelete,
   onEdit,
-  genderFilter,
-  onGenderChange,
   totalResidents,
   meta,
   page,
@@ -18,7 +16,7 @@ const ResidentTable = ({
   const [search, setSearch] = useState("");
 
   const filteredResidents = residents.filter((resident) => {
-    const fullName = `${resident.jefe.nombres} ${resident.jefe.apellidos}`.toLowerCase();
+    const fullName = `${resident.nombres} ${resident.apellidos}`.toLowerCase();
     const cedula = (resident.cedula || "").toLowerCase();
     return (
       fullName.includes(search.toLowerCase()) ||
@@ -38,18 +36,6 @@ const ResidentTable = ({
             icon={FaSearch}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-          />
-
-          <CustomSelect
-            label="Género"
-            className="md:w-48"
-            value={genderFilter}
-            onChange={(e) => onGenderChange(e.target.value)}
-            options={[
-              { label: "Todos", value: "" },
-              { label: "Masculino", value: "M" },
-              { label: "Femenino", value: "F" },
-            ]}
           />
         </div>
 

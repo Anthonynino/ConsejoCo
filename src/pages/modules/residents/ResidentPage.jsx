@@ -17,9 +17,6 @@ const ResidentPage = () => {
   const [residents, setResidents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [editingResident, setEditingResident] = useState(null);
-
-  // Estados de filtros y paginación
-  const [genderFilter, setGenderFilter] = useState("");
   const [page, setPage] = useState(1);
   const [meta, setMeta] = useState({ total: 0, totalPages: 0 });
 
@@ -30,7 +27,6 @@ const ResidentPage = () => {
         page,
         limit: 9,
       };
-      if (genderFilter) params.genero = genderFilter;
 
       const response = await getResidents(params);
       setResidents(response.data || []);
@@ -43,13 +39,11 @@ const ResidentPage = () => {
     } finally {
       setLoading(false);
     }
-  }, [page, genderFilter]);
+  }, [page]);
 
   useEffect(() => {
     fetchResidents();
-  }, [genderFilter]);
-
-  console.log(genderFilter)
+  }, [fetchResidents]);
 
   const handleDelete = async (id) => {
     if (!confirm("¿Estás seguro de eliminar este habitante?")) return;
@@ -180,11 +174,6 @@ const ResidentPage = () => {
               residents={residents}
               onDelete={handleDelete}
               onEdit={handleEdit}
-              genderFilter={genderFilter}
-              onGenderChange={(val) => {
-                setGenderFilter(val);
-                setPage(1);
-              }}
               totalResidents={meta.total}
               meta={meta}
               page={page}
