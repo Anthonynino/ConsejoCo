@@ -3,13 +3,13 @@ import { FaEllipsisV } from "react-icons/fa";
 import Avatar from "../../../../components/Avatar";
 
 const CardResident = ({ resident, idx, onDelete, onEdit }) => {
-  const fullName = `${resident.jefe.nombres} ${resident.jefe.apellidos}`;
+  const fullName = `${resident.nombres} ${resident.apellidos}`;
   
-  const initials = (resident.jefe.nombres || "")
+  const initials = (resident.nombres || "")
     .split(" ")
     .filter(Boolean)
     .slice(0, 1)
-    .concat((resident.jefe.apellidos || "").split(" ").filter(Boolean).slice(0,1))
+    .concat((resident.apellidos || "").split(" ").filter(Boolean).slice(0,1))
     .map((p) => p[0])
     .join("")
     .toUpperCase();
@@ -29,18 +29,19 @@ const CardResident = ({ resident, idx, onDelete, onEdit }) => {
           <div className="flex items-center gap-4 min-w-0">
             <Avatar initials={initials} idx={idx}/>
             <div className="min-w-0">
-              <h3 className="card-title text-sm font-bold truncate max-w-[180px]">
+              <h3 className="card-title text-sm font-bold truncate max-w-45">
                 {fullName}
               </h3>
               <p className="text-xs opacity-60 uppercase tracking-tighter">
-                V-{resident.jefe.cedula}
+                V-{resident.cedula}
               </p>
             </div>
           </div>
 
           <div className="flex items-center gap-1">
-            <button 
-              onClick={() => onEdit(resident)}
+            <button
+              type="button"
+              onClick={() => onEdit?.(resident)}
               className="btn btn-ghost btn-circle btn-xs text-base-content/40 hover:text-primary transition-colors"
             >
               <FaPen className="h-3 w-3" />
@@ -58,13 +59,18 @@ const CardResident = ({ resident, idx, onDelete, onEdit }) => {
                 className="dropdown-content z-1 menu p-2 shadow bg-base-100 rounded-box w-48 border border-base-200"
               >
                 <li>
-                  <button onClick={() => onEdit(resident)}>Editar Datos</button>
+                  <button type="button" onClick={() => onEdit?.(resident)}>
+                    Editar Datos
+                  </button>
                 </li>
                 <li>
-                  <a>Ver Grupo Familiar</a>
+                  <button type="button" className="text-base-content/70">
+                    Ver Grupo Familiar
+                  </button>
                 </li>
                 <li>
-                  <button 
+                  <button
+                    type="button"
                     onClick={() => onDelete(resident.id)}
                     className="text-error"
                   >
@@ -84,7 +90,7 @@ const CardResident = ({ resident, idx, onDelete, onEdit }) => {
               <div className="p-1.5 bg-base-200 rounded-lg">
                 <FaPhoneAlt className="text-primary" />
               </div>
-              <span>{resident.jefe.telefono || "Sin teléfono"}</span>
+              <span>{resident.telefono || "Sin teléfono"}</span>
             </div>
 
             <div className="flex items-center justify-between gap-3">
@@ -92,24 +98,24 @@ const CardResident = ({ resident, idx, onDelete, onEdit }) => {
                 <div className="p-1.5 bg-base-200 rounded-lg">
                   <span className="text-[10px] font-bold opacity-70">Edad</span>
                 </div>
-                <span>{calculateAge(resident.jefe.fechaNacimiento)} años</span>
+                <span>{calculateAge(resident.fechaNacimiento)} años</span>
               </div>
 
               <span className="badge badge-info badge-outline badge-sm text-[10px] font-bold uppercase">
-                {resident.jefe.genero === "M" ? "Masculino" : "Femenino"}
+                {resident.genero === "M" ? "Masculino" : "Femenino"}
               </span>
             </div>
 
             <div>
-              {resident.familiaId ? (
+              
                 <span className="badge badge-primary badge-outline badge-sm text-[9px] uppercase font-extrabold tracking-tighter shadow-sm">
-                  Casa #{resident.familia?.numeroDeCasa || resident.familiaId}
+                  Casa #{resident.numeroDeCasa || "N/A"}
                 </span>
-              ) : (
+              
                 <span className="badge badge-ghost badge-sm text-[9px] uppercase font-bold opacity-60">
-                  Sin Carga Familiar
+                  {resident.tieneFamiliares ? `${resident.cantidadFamiliares} familiares` : "Sin Carga Familiar"}
                 </span>
-              )}
+              
             </div>
           </div>
         </div>
