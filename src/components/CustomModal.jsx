@@ -1,4 +1,4 @@
-import { FiX } from "react-icons/fi";
+import { AiOutlineClose } from "react-icons/ai";
 
 function CustomModal({ isOpen, onClose, children, widthClass, title, subtitle, actionText = "Aceptar", onAction }) {
   if (!isOpen) return null;
@@ -16,7 +16,7 @@ function CustomModal({ isOpen, onClose, children, widthClass, title, subtitle, a
             onClick={onClose}
             className="btn btn-ghost btn-sm btn-circle text-base-content/50 hover:text-error transition-colors"
           >
-            <FiX size={20} />
+            <AiOutlineClose size={20} />
           </button>
         </div>
 

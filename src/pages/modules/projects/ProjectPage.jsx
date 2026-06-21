@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { toast } from "react-toastify";
 import {
   FaSearch,
   FaProjectDiagram,
@@ -6,7 +7,8 @@ import {
   FaCheckCircle,
 } from "react-icons/fa";
 import ProjectCard from "./components/ProjectCard";
-import CreateProjectModal from "./components/CreateProjectModal";
+import CreateProjectModal from "./modals/CreateProjectModal";
+import DeleteModal from "../../../modals/DeleteModal";
 import HeaderModules from "../../../components/HeaderModules";
 import StadisticCard from "../../../components/StadisticCard";
 import CustomInput from "../../../components/CustomInput";
@@ -22,6 +24,8 @@ const ProjectPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterEstado, setFilterEstado] = useState("");
   const [filterPrioridad, setFilterPrioridad] = useState("");
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [projectToDelete, setProjectToDelete] = useState(null);
 
   const stats = [
     {
@@ -77,6 +81,7 @@ const ProjectPage = () => {
         setProjects(data.data);
       } catch (err) {
         setError("Error al cargar los proyectos");
+        toast.error("Error al cargar los proyectos");
         console.error(err);
       } finally {
         setLoading(false);
@@ -113,8 +118,10 @@ const ProjectPage = () => {
           limit: 50,
         });
         setProjects(data.data);
+        toast.success("Lista de proyectos actualizada");
       } catch (err) {
         setError("Error al cargar los proyectos");
+        toast.error("Error al actualizar la lista de proyectos");
         console.error(err);
       } finally {
         setLoading(false);
@@ -124,13 +131,19 @@ const ProjectPage = () => {
     fetchProjects();
   };
 
-  const handleDelete = async (project) => {
-    if (!confirm(`¿Estás seguro de eliminar el proyecto "${project.nombre}"?`)) {
-      return;
-    }
+  const handleDelete = (project) => {
+    setProjectToDelete(project);
+    setDeleteModalOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!projectToDelete) return;
 
     try {
-      await deleteProject(project.id);
+      await deleteProject(projectToDelete.id);
+      toast.success(`Proyecto "${projectToDelete.nombre}" eliminado exitosamente`);
+      setDeleteModalOpen(false);
+      setProjectToDelete(null);
       // Refresh the project list after successful delete
       const fetchProjects = async () => {
         try {
@@ -144,6 +157,7 @@ const ProjectPage = () => {
           setProjects(data.data);
         } catch (err) {
           setError("Error al cargar los proyectos");
+          toast.error("Error al actualizar la lista de proyectos");
           console.error(err);
         } finally {
           setLoading(false);
@@ -153,21 +167,12 @@ const ProjectPage = () => {
       fetchProjects();
     } catch (error) {
       console.error("Error al eliminar proyecto:", error);
+      toast.error("Error al eliminar el proyecto");
     }
   };
 
   return (
     <div className="w-full space-y-6 mx-auto p-6">
-      <CreateProjectModal
-        isOpen={isModalOpen}
-        onClose={() => {
-          setIsModalOpen(false);
-          setEditingProject(null);
-        }}
-        initialData={editingProject}
-        onSuccess={handleModalSuccess}
-      />
-
       {/* Header */}
       <HeaderModules
         title={"Gestión de Proyectos"}
@@ -247,6 +252,26 @@ const ProjectPage = () => {
           <p className="text-lg font-bold">No hay proyectos registrados aún.</p>
         </div>
       )}
+      <CreateProjectModal
+        isOpen={isModalOpen}
+        onClose={() => {
+          setIsModalOpen(false);
+          setEditingProject(null);
+        }}
+        initialData={editingProject}
+        onSuccess={handleModalSuccess}
+      />
+      <DeleteModal
+        isOpen={deleteModalOpen}
+        onClose={() => {
+          setDeleteModalOpen(false);
+          setProjectToDelete(null);
+        }}
+        title="Eliminar Proyecto"
+        message={`¿Estás seguro de que deseas eliminar el proyecto "${projectToDelete?.nombre || ""}"? Esta acción no se puede deshacer.`}
+        onConfirm={handleConfirmDelete}
+        actionText="Eliminar"
+      />
     </div>
   );
 };

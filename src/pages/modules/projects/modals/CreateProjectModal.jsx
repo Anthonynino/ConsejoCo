@@ -1,9 +1,31 @@
 import { useState, useEffect } from "react";
-import CustomModal from "../../../../components/CustomModal";
+import { z } from "zod";
 import CustomTextArea from "../../../../components/CustomTextArea";
 import CustomSelect from "../../../../components/CustomSelect";
+import CustomModal from "../../../../components/CustomModal";
 import CustomInput from "../../../../components/CustomInput";
 import { createProject, updateProject } from "../../../../services/projects";
+import { toast } from "react-toastify";
+
+const projectSchema = z.object({
+  nombre: z.string().min(1, "El nombre es requerido").min(3, "El nombre debe tener al menos 3 caracteres").max(100, "El nombre no puede exceder 100 caracteres"),
+  descripcion: z.string().min(1, "La descripción es requerida").min(10, "La descripción debe tener al menos 10 caracteres"),
+  estado: z.enum(["PLANIFICADO", "EN_EJECUCION", "EN_PAUSA", "COMPLETADO", "CANCELADO"]),
+  prioridad: z.enum(["ALTA", "MEDIA", "BAJA"]),
+  ubicacionSector: z.string().max(200, "La ubicación no puede exceder 200 caracteres").min(1, "La ubicación es requerida"),
+  fechaInicio: z.string().min(1, "La fecha de inicio es requerida"),
+  fechaFinEstimada: z.string().min(1, "La fecha fin es requerida"),
+  presupuestoTotal: z.string().refine(
+    (val) => !val || parseFloat(val) >= 0,
+    "El presupuesto no puede ser negativo"
+  ).refine(
+    (val) => !val || !isNaN(parseFloat(val)),
+    "El presupuesto debe ser un número válido"
+  ).refine(
+    (val) => !val || val.length <= 12,
+    "El presupuesto no puede exceder 12 digitos"
+  ).min(1, "El presupuesto es requerido"),
+});
 
 const CreateProjectModal = ({ isOpen, onClose, initialData, onSuccess }) => {
   const formatDateForInput = (dateString) => {
@@ -21,6 +43,8 @@ const CreateProjectModal = ({ isOpen, onClose, initialData, onSuccess }) => {
     fechaFinEstimada: "",
     presupuestoTotal: "",
   });
+
+  const [errors, setErrors] = useState({});
 
   useEffect(() => {
     if (isOpen) {
@@ -43,8 +67,29 @@ const CreateProjectModal = ({ isOpen, onClose, initialData, onSuccess }) => {
   };
 
   const handleSubmit = async (e) => {
+    debugger
     e.preventDefault();
     try {
+      const validationResult = projectSchema.safeParse(formData);
+
+      if (!validationResult.success) {
+        
+        const fieldErrors = validationResult.error.issues.reduce((acc, currentError) => {
+          const field = currentError.path[0];
+          
+          if (!acc[field]) {
+            acc[field] = currentError.message;
+          }
+          return acc;
+        }, {});
+
+        setErrors(fieldErrors);
+        toast.error("Por favor, corrige los errores en el formulario");
+        return;
+      }
+      // Clear errors if validation passes
+      setErrors({});
+
       const projectData = {
         nombre: formData.nombre,
         descripcion: formData.descripcion,
@@ -58,14 +103,17 @@ const CreateProjectModal = ({ isOpen, onClose, initialData, onSuccess }) => {
 
       if (initialData?.id) {
         await updateProject(initialData.id, projectData);
+        toast.success("Proyecto actualizado exitosamente");
       } else {
         await createProject(projectData);
+        toast.success("Proyecto creado exitosamente");
       }
 
       onSuccess();
       onClose();
     } catch (error) {
       console.error("Error al guardar proyecto:", error);
+      toast.error("Error al guardar el proyecto");
     }
   };
 
@@ -92,6 +140,7 @@ const CreateProjectModal = ({ isOpen, onClose, initialData, onSuccess }) => {
             placeholder="Ej: Reparación de tuberías"
             className="md:col-span-2"
             required
+            error={errors.nombre}
           />
 
           <CustomTextArea
@@ -102,6 +151,7 @@ const CreateProjectModal = ({ isOpen, onClose, initialData, onSuccess }) => {
             placeholder={"Objetivo y alcance del proyecto..."}
             className={"md:col-span-2"}
             required
+            error={errors.descripcion}
           />
 
           <CustomInput
@@ -111,6 +161,9 @@ const CreateProjectModal = ({ isOpen, onClose, initialData, onSuccess }) => {
             onChange={handleChange}
             type="number"
             placeholder="0.00"
+            min="0"
+            step="0.01"
+            error={errors.presupuestoTotal}
           />
 
           <CustomSelect
@@ -136,6 +189,7 @@ const CreateProjectModal = ({ isOpen, onClose, initialData, onSuccess }) => {
             onChange={handleChange}
             type="text"
             placeholder="Ej: Sector Las Flores"
+            error={errors.ubicacionSector}
           />
 
           <CustomInput
@@ -144,6 +198,7 @@ const CreateProjectModal = ({ isOpen, onClose, initialData, onSuccess }) => {
             value={formData.fechaInicio}
             onChange={handleChange}
             type="date"
+            error={errors.fechaInicio}
           />
 
           <CustomInput
@@ -152,6 +207,7 @@ const CreateProjectModal = ({ isOpen, onClose, initialData, onSuccess }) => {
             value={formData.fechaFinEstimada}
             onChange={handleChange}
             type="date"
+            error={errors.fechaFinEstimada}
           />
         </div>
       </form>

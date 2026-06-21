@@ -78,7 +78,7 @@ const AppLayout = () => {
               </h2>
               <FaHandsHelping className="text-2xl text-primary" />
             </div>
-            <p className="text-sm opacity-70">La Victoria</p>
+            <p className="text-sm opacity-70">Sistema Administrativo</p>
           </div>
           <ul className="menu p-4 w-full">
             {navigation.map((item) => (

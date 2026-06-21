@@ -16,7 +16,7 @@ export default function FinanzasPage() {
   const [loading, setLoading] = useState(false);
   const [filterType, setFilterType] = useState("Todos");
   const [filterSearch, setFilterSearch] = useState("");
-  const [dateRange, setDateRange] = useState("All time");
+  const [dateRange, setDateRange] = useState("Todos");
   const [page, setPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
 
@@ -48,13 +48,13 @@ useEffect(() => {
   ];
 
   const optionsFilter = ["Todos", "Ingreso", "Egreso"];
-  const optionsDateRange = ["All time", "Last month", "Last 3 months", "Last 6 months"];
+  const optionsDateRange = ["Todos", "Último mes", "Últimos 3 meses", "Últimos 6 meses"];
 
   const getDateFrom = () => {
     const now = new Date();
-    if (dateRange === "Last month")    return new Date(now.setMonth(now.getMonth() - 1)).toISOString().split("T")[0];
-    if (dateRange === "Last 3 months") return new Date(now.setMonth(now.getMonth() - 3)).toISOString().split("T")[0];
-    if (dateRange === "Last 6 months") return new Date(now.setMonth(now.getMonth() - 6)).toISOString().split("T")[0];
+    if (dateRange === "Último mes")    return new Date(now.setMonth(now.getMonth() - 1)).toISOString().split("T")[0];
+    if (dateRange === "Últimos 3 meses") return new Date(now.setMonth(now.getMonth() - 3)).toISOString().split("T")[0];
+    if (dateRange === "Últimos 6 meses") return new Date(now.setMonth(now.getMonth() - 6)).toISOString().split("T")[0];
     return null;
   };
 
@@ -62,7 +62,7 @@ useEffect(() => {
     .filter(m => filterType === "Todos" ? true : m.tipo === filterType.toUpperCase())
     .filter(m => m.descripcion.toLowerCase().includes(filterSearch.toLowerCase()))
     .filter(m => {
-      if (dateRange === "All time") return true;
+      if (dateRange === "Todos") return true;
       const movDate  = new Date(m.fecha);
       const fromDate = new Date(getDateFrom());
       return movDate >= fromDate;

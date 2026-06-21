@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import ResidentTable from "./components/ResidentTable";
 import CreateResidentModal from "./components/CreateResidentModal";
 import HeaderModules from "../../../components/HeaderModules";
-import StadisticCard from "../../../components/StadisticCard";
+/* import StadisticCard from "../../../components/StadisticCard"; */
 import { FaBlind, FaChild, FaUsers, FaVenusMars } from "react-icons/fa";
 import {
   getResidents,
@@ -80,7 +80,7 @@ const ResidentPage = () => {
     }
   };
 
-  const calculateStats = () => {
+/*   const calculateStats = () => {
     const total = meta.total || residents.length;
     let kids = 0;
     let seniors = 0;
@@ -135,7 +135,7 @@ const ResidentPage = () => {
     ];
   };
 
-  const stats = calculateStats();
+  const stats = calculateStats(); */
 
   return (
     <div className="w-full space-y-8 p-6 mx-auto animate-in fade-in duration-700">
@@ -161,7 +161,7 @@ const ResidentPage = () => {
         titleBtn={"Nuevo Habitante"}
       />
 
-      <StadisticCard stats={stats} />
+ {/*      <StadisticCard stats={stats} /> */}
 
       <div className="space-y-4">
         {loading ? (

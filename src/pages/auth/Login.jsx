@@ -57,7 +57,7 @@ const Login = () => {
                 Consejo Comunal
               </h1>
               <p className="text-sm text-base-content/60">
-                La Victoria - Sistema Administrativo
+                Sistema Administrativo
               </p>
             </div>
 
@@ -119,4 +119,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default Login;

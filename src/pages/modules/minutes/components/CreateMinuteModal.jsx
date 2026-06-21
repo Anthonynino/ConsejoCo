@@ -1,4 +1,5 @@
-import { FiX, FiCheckCircle } from "react-icons/fi";
+import { FiCheckCircle } from "react-icons/fi";
+import { AiOutlineClose } from "react-icons/ai";
 
 const CreateMinuteModal = ({ isOpen, onClose }) => {
   if (!isOpen) return null;
@@ -16,7 +17,7 @@ const CreateMinuteModal = ({ isOpen, onClose }) => {
             onClick={onClose}
             className="btn btn-ghost btn-sm btn-circle text-base-content/50 hover:text-error transition-colors"
           >
-            <FiX size={20} />
+            <AiOutlineClose size={20} />
           </button>
         </div>
 

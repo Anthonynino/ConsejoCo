@@ -1,4 +1,4 @@
-function CustomTextArea({ placeholder, className, label = "", ...props }) {
+function CustomTextArea({ placeholder, className, label = "", error = "", ...props }) {
   return (
     <div className={`${className} form-control w-full`}>
       {label !== "" && (
@@ -13,6 +13,11 @@ function CustomTextArea({ placeholder, className, label = "", ...props }) {
         placeholder={placeholder}
         {...props}
       ></textarea>
+      {error && (
+        <label className="label py-1">
+          <span className="label-text-alt text-error text-xs">{error}</span>
+        </label>
+      )}
     </div>
   );
 }

@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
-import { FiUploadCloud, FiX } from "react-icons/fi";
+import { FiUploadCloud } from "react-icons/fi";
+import { AiOutlineClose } from "react-icons/ai";
 import { toast } from "react-toastify";
 import { z } from "zod";
 import CustomModal from "../../../../components/CustomModal";
@@ -152,7 +153,7 @@ const UploadDocumentModal = ({ isOpen, onClose, initialData, onSuccess }) => {
                   onClick={handleRemoveFile}
                   className="btn btn-ghost btn-circle btn-sm"
                 >
-                  <FiX className="text-error" />
+                  <AiOutlineClose className="text-error" />
                 </button>
               </div>
             ) : (

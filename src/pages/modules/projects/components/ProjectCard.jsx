@@ -21,7 +21,7 @@ const ProjectCard = ({ project, onEdit, onDelete }) => {
 
   return (
     <div className="card bg-base-100 border border-base-200 shadow-sm hover:shadow-md transition-all group relative">
-      <div className="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+      <div className="absolute top-4 right-4 flex gap-2">
         <button
           onClick={onEdit}
           className="btn btn-circle btn-ghost btn-sm"
@@ -49,9 +49,11 @@ const ProjectCard = ({ project, onEdit, onDelete }) => {
                 Prioridad {project.prioridad}
               </span>
             </div>
-            <h3 className="card-title text-base font-bold group-hover:text-primary transition-colors leading-tight">
+            <div className="max-w-64">
+            <h3 className="text-base font-bold truncate group-hover:text-primary transition-colors ">
               {project.nombre}
             </h3>
+            </div>
           </div>
         </div>
 
