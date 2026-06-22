@@ -1,14 +1,17 @@
 import { useState, useEffect, useCallback } from "react";
 import ResidentTable from "./components/ResidentTable";
-import CreateResidentModal from "./components/CreateResidentModal";
+import CreateResidentModal from "./modals/CreateResidentModal";
+import CreateFamilyMemberModal from "./modals/CreateFamilyMemberModal";
+import FamiliarGroupDetails from "./modals/FamiliarGroupDetails";
+import CustomModal from "../../../components/CustomModal";
 import HeaderModules from "../../../components/HeaderModules";
-/* import StadisticCard from "../../../components/StadisticCard"; */
-import { FaBlind, FaChild, FaUsers, FaVenusMars } from "react-icons/fa";
 import {
   getResidents,
   deleteResident,
   createResident,
   updateResident,
+  getFamilyMembers,
+  createFamilyMember,
 } from "../../../services/residents";
 import { toast } from "react-toastify";
 
@@ -19,6 +22,11 @@ const ResidentPage = () => {
   const [editingResident, setEditingResident] = useState(null);
   const [page, setPage] = useState(1);
   const [meta, setMeta] = useState({ total: 0, totalPages: 0 });
+  const [isFamilyModalOpen, setIsFamilyModalOpen] = useState(false);
+  const [familyMembers, setFamilyMembers] = useState([]);
+  const [selectedFamilyHead, setSelectedFamilyHead] = useState(null);
+  const [loadingFamily, setLoadingFamily] = useState(false);
+  const [isCreateFamilyMemberOpen, setIsCreateFamilyMemberOpen] = useState(false);
 
   const fetchResidents = useCallback(async () => {
     try {
@@ -80,62 +88,33 @@ const ResidentPage = () => {
     }
   };
 
-/*   const calculateStats = () => {
-    const total = meta.total || residents.length;
-    let kids = 0;
-    let seniors = 0;
-    let females = 0;
-
-    residents.forEach((r) => {
-      if (r.genero === "F") females++;
-      if (r.fechaNacimiento) {
-        const age = Math.abs(
-          new Date(
-            Date.now() - new Date(r.fechaNacimiento).getTime(),
-          ).getUTCFullYear() - 1970,
-        );
-        if (age < 18) kids++;
-        if (age >= 60) seniors++;
-      }
-    });
-
-    const femalePercent =
-      total > 0 ? Math.round((females / residents.length) * 100) : 0;
-    const malePercent = total > 0 ? 100 - femalePercent : 0;
-
-    return [
-      {
-        label: "Total Habitantes",
-        value: total.toString(),
-        icon: FaUsers,
-        color: "text-primary",
-        bg: "bg-primary/10",
-      },
-      {
-        label: "Menores de Edad",
-        value: kids.toString(),
-        icon: FaChild,
-        color: "text-info",
-        bg: "bg-info/10",
-      },
-      {
-        label: "Adultos Mayores",
-        value: seniors.toString(),
-        icon: FaBlind,
-        color: "text-warning",
-        bg: "bg-warning/10",
-      },
-      {
-        label: "Género",
-        value: `${femalePercent}% F / ${malePercent}% M`,
-        icon: FaVenusMars,
-        color: "text-secondary",
-        bg: "bg-secondary/10",
-      },
-    ];
+  const handleViewFamily = async (resident) => {
+    try {
+      setLoadingFamily(true);
+      setSelectedFamilyHead(resident);
+      const response = await getFamilyMembers(resident.familia_id);
+      setFamilyMembers(response.data || []);
+      setIsFamilyModalOpen(true);
+    } catch (error) {
+      console.error("Error fetching family members:", error);
+      toast.error("Error al cargar los familiares");
+    } finally {
+      setLoadingFamily(false);
+    }
   };
 
-  const stats = calculateStats(); */
+  const handleCreateFamilyMember = async (memberData) => {
+    try {
+      await createFamilyMember(selectedFamilyHead.familia_id, memberData);
+      toast.success("Familiar agregado con éxito");
+      setIsCreateFamilyMemberOpen(false);
+      const response = await getFamilyMembers(selectedFamilyHead.familia_id);
+      setFamilyMembers(response.data || []);
+    } catch (error) {
+      console.error("Error creating family member:", error);
+      toast.error("Error al agregar el familiar");
+    }
+  };
 
   return (
     <div className="w-full space-y-8 p-6 mx-auto animate-in fade-in duration-700">
@@ -149,6 +128,42 @@ const ResidentPage = () => {
         initialData={editingResident}
       />
 
+      <CreateFamilyMemberModal
+        isOpen={isCreateFamilyMemberOpen}
+        onClose={() => setIsCreateFamilyMemberOpen(false)}
+        onSave={handleCreateFamilyMember}
+        familyId={selectedFamilyHead?.familia_id}
+      />
+
+      <CustomModal
+        isOpen={isFamilyModalOpen}
+        onClose={() => {
+          setIsFamilyModalOpen(false);
+          setFamilyMembers([]);
+          setSelectedFamilyHead(null);
+        }}
+        title="Grupo Familiar"
+        subtitle={`Familiares de ${selectedFamilyHead?.nombres || ''} ${selectedFamilyHead?.apellidos || ''}`}
+        widthClass="max-w-3xl"
+        onAction={() => {
+          setIsFamilyModalOpen(false);
+          setFamilyMembers([]);
+          setSelectedFamilyHead(null);
+        }}
+        actionText="Cerrar"
+      >
+        {loadingFamily ? (
+          <div className="flex justify-center p-10">
+            <span className="loading loading-spinner loading-lg text-primary"></span>
+          </div>
+        ) : (
+          <FamiliarGroupDetails
+            familyMembers={familyMembers}
+            onAddMember={() => setIsCreateFamilyMemberOpen(true)}
+          />
+        )}
+      </CustomModal>
+
       <HeaderModules
         title={"Gestión de Habitantes"}
         description={
@@ -161,8 +176,6 @@ const ResidentPage = () => {
         titleBtn={"Nuevo Habitante"}
       />
 
- {/*      <StadisticCard stats={stats} /> */}
-
       <div className="space-y-4">
         {loading ? (
           <div className="flex justify-center p-10">
@@ -174,6 +187,7 @@ const ResidentPage = () => {
               residents={residents}
               onDelete={handleDelete}
               onEdit={handleEdit}
+              onViewFamily={handleViewFamily}
               totalResidents={meta.total}
               meta={meta}
               page={page}

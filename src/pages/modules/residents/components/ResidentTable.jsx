@@ -2,12 +2,12 @@ import { useState } from "react";
 import { FaSearch } from "react-icons/fa";
 import CardResident from "./CardResident";
 import CustomInput from "../../../../components/CustomInput";
-import CustomSelect from "../../../../components/CustomSelect";
 
 const ResidentTable = ({
   residents = [],
   onDelete,
   onEdit,
+  onViewFamily,
   totalResidents,
   meta,
   page,
@@ -84,6 +84,7 @@ const ResidentTable = ({
               resident={resident}
               onDelete={onDelete}
               onEdit={onEdit}
+              onViewFamily={onViewFamily}
             />
           ))}
         </div>

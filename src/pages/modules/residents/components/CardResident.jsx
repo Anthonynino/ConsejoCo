@@ -2,7 +2,7 @@ import { FaPhoneAlt, FaPen, FaTrashAlt } from "react-icons/fa";
 import { FaEllipsisV } from "react-icons/fa";
 import Avatar from "../../../../components/Avatar";
 
-const CardResident = ({ resident, idx, onDelete, onEdit }) => {
+const CardResident = ({ resident, idx, onDelete, onEdit, onViewFamily }) => {
   const fullName = `${resident.nombres} ${resident.apellidos}`;
   
   const initials = (resident.nombres || "")
@@ -39,14 +39,6 @@ const CardResident = ({ resident, idx, onDelete, onEdit }) => {
           </div>
 
           <div className="flex items-center gap-1">
-            <button
-              type="button"
-              onClick={() => onEdit?.(resident)}
-              className="btn btn-ghost btn-circle btn-xs text-base-content/40 hover:text-primary transition-colors"
-            >
-              <FaPen className="h-3 w-3" />
-            </button>
-
             <div className="dropdown dropdown-left">
               <label
                 tabIndex={0}
@@ -64,7 +56,11 @@ const CardResident = ({ resident, idx, onDelete, onEdit }) => {
                   </button>
                 </li>
                 <li>
-                  <button type="button" className="text-base-content/70">
+                  <button 
+                    type="button" 
+                    className="text-base-content/70"
+                    onClick={() => onViewFamily?.(resident)}
+                  >
                     Ver Grupo Familiar
                   </button>
                 </li>
