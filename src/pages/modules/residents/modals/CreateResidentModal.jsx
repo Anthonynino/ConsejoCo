@@ -3,14 +3,9 @@ import { z } from "zod";
 import CustomModal from "../../../../components/CustomModal";
 import CustomInput from "../../../../components/CustomInput";
 import CustomSelect from "../../../../components/CustomSelect";
+import { toast } from "react-toastify";
 
-const residentSchema = z.object({
-  cedula: z
-    .string()
-    .trim()
-    .min(6, "Cédula inválida, mínimo 6 dígitos")
-    .max(12, "Cédula inválida, máximo 12 dígitos")
-    .regex(/^[0-9]+$/, "La cédula debe contener solo números"),
+const jefeSchema = z.object({
   nombres: z
     .string()
     .trim()
@@ -21,6 +16,12 @@ const residentSchema = z.object({
     .trim()
     .min(3, "Ingrese al menos 3 caracteres")
     .max(80, "Apellido demasiado largo"),
+  cedula: z
+    .string()
+    .trim()
+    .min(6, "Cédula inválida, mínimo 6 dígitos")
+    .max(12, "Cédula inválida, máximo 12 dígitos")
+    .regex(/^[0-9]+$/, "La cédula debe contener solo números"),
   fechaNacimiento: z
     .string()
     .nonempty("Fecha de nacimiento requerida")
@@ -31,9 +32,9 @@ const residentSchema = z.object({
       const birth = new Date(value);
       const now = new Date();
       const age = Math.floor((now - birth) / (1000 * 60 * 60 * 24 * 365.25));
-      return birth < now && age >= 0 && age <= 120;
+      return birth < now && age >= 18 && age <= 120;
     }, {
-      message: "La fecha de nacimiento debe ser válida y menor a la fecha actual",
+      message: "El jefe de familia debe ser mayor de 18 años",
     }),
   genero: z.enum(["M", "F"], {
     errorMap: () => ({ message: "Selecciona un género válido" }),
@@ -45,66 +46,122 @@ const residentSchema = z.object({
     .refine((value) => !value || /^[0-9+\s()-]{7,20}$/.test(value), {
       message: "Teléfono inválido",
     }),
+  discapacitado: z.boolean().optional(),
+  embarazada: z.boolean().optional(),
+});
+
+const residentSchema = z.object({
+  numeroDeCasa: z.string().min(1, "Número de casa es requerido").min(1, "Número de casa debe tener al menos 1 carácter").max(20, "Número de casa demasiado largo"),
+  jefe: jefeSchema,
 });
 
 const CreateResidentModal = ({ isOpen, onClose, onSave, initialData }) => {
   const [formData, setFormData] = useState({
-    cedula: "",
-    nombres: "",
-    apellidos: "",
-    fechaNacimiento: "",
-    genero: "M",
-    telefono: "",
-    familiaId: "",
+    numeroDeCasa: "",
+    jefe: {
+      cedula: "",
+      nombres: "",
+      apellidos: "",
+      fechaNacimiento: "",
+      genero: "M",
+      telefono: "",
+      discapacitado: false,
+      embarazada: false,
+    },
   });
   const [errors, setErrors] = useState({});
 
   useEffect(() => {
     if (initialData) {
       setFormData({
-        cedula: initialData.cedula || "",
-        nombres: initialData.nombres || "",
-        apellidos: initialData.apellidos || "",
-        fechaNacimiento: initialData.fechaNacimiento
-          ? initialData.fechaNacimiento.split("T")[0]
-          : "",
-        genero: initialData.genero || "M",
-        telefono: initialData.telefono || "",
+        numeroDeCasa: initialData.numeroDeCasa || "",
+        jefe: {
+          cedula: initialData.cedula || "",
+          nombres: initialData.nombres || "",
+          apellidos: initialData.apellidos || "",
+          fechaNacimiento: initialData.fechaNacimiento
+            ? initialData.fechaNacimiento.split("T")[0]
+            : "",
+          genero: initialData.genero || "M",
+          telefono: initialData.telefono || "",
+          discapacitado: initialData.discapacitado || false,
+          embarazada: initialData.embarazada || false,
+        },
       });
     } else {
       setFormData({
-        cedula: "",
-        nombres: "",
-        apellidos: "",
-        fechaNacimiento: "",
-        genero: "M",
-        telefono: "",
+        numeroDeCasa: "",
+        jefe: {
+          cedula: "",
+          nombres: "",
+          apellidos: "",
+          fechaNacimiento: "",
+          genero: "M",
+          telefono: "",
+          discapacitado: false,
+          embarazada: false,
+        },
       });
     }
     setErrors({});
   }, [initialData, isOpen]);
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    const { name, value, type, checked } = e.target;
+    
+    // Check if the field is part of the jefe object
+    if (["cedula", "nombres", "apellidos", "fechaNacimiento", "genero", "telefono", "discapacitado", "embarazada"].includes(name)) {
+      setFormData((prev) => {
+        const newJefe = {
+          ...prev.jefe,
+          [name]: type === "checkbox" ? checked : value,
+        };
+        // If gender changes to male, reset embarazada to false
+        if (name === "genero" && value === "M") {
+          newJefe.embarazada = false;
+        }
+        return {
+          ...prev,
+          jefe: newJefe,
+        };
+      });
+    } else {
+      setFormData((prev) => ({ ...prev, [name]: value }));
+    }
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    try {
+      const validationResult = residentSchema.safeParse(formData);
 
-    const parsed = residentSchema.safeParse(formData);
-    if (!parsed.success) {
-      const fieldErrors = Object.fromEntries(
-        Object.entries(parsed.error.formErrors.fieldErrors).map(
-          ([key, messages]) => [key, messages?.[0] || ""]
-        )
-      );
-      setErrors(fieldErrors);
-      return;
+      if (!validationResult.success) {
+        const fieldErrors = validationResult.error.issues.reduce((acc, currentError) => {
+          const field = currentError.path.join('.');
+          
+          if (!acc[field]) {
+            acc[field] = currentError.message;
+          }
+          return acc;
+        }, {});
+
+        setErrors(fieldErrors);
+        toast.error("Por favor, corrige los errores en el formulario");
+        return;
+      }
+      setErrors({});
+      
+      const formattedData = {
+        numeroDeCasa: formData.numeroDeCasa,
+        consejoComunalId: 1,
+        jefe: formData.jefe,
+      };
+      
+      onSave(formattedData);
+    } catch (error) {
+      console.error("Error al guardar habitante:", error);
+      toast.error("Error al guardar el habitante");
     }
-
-    setErrors({});
-    onSave(parsed.data);
   };
 
   if (!isOpen) return null;
@@ -117,84 +174,118 @@ const CreateResidentModal = ({ isOpen, onClose, onSave, initialData }) => {
       title={initialData ? "Editar Habitante" : "Nuevo Habitante"}
       subtitle={"Registro Integral Comunidad"}
       actionText={initialData ? "Actualizar Datos" : "Crear Habitante"}
-      onActionClick={handleSubmit}
+      onAction={handleSubmit}
     >
       <form
         onSubmit={handleSubmit}
         className="grid grid-col-1 md:grid-cols-2 gap-5"
       >
         <CustomInput
+          label="Número de Casa"
+          name="numeroDeCasa"
+          value={formData.numeroDeCasa}
+          onChange={handleChange}
+          placeholder="Ej: A-12"
+          required
+          error={errors.numeroDeCasa || ""}
+        />
+
+        <CustomInput
           label="Nombres"
           name="nombres"
-          value={formData.nombres}
+          value={formData.jefe.nombres}
           onChange={handleChange}
           placeholder="Ej: Marcos Antonio"
           required
+          error={errors['jefe.nombres'] || ""}
         />
-        {errors.nombres && (
-          <p className="text-error text-xs mt-1">{errors.nombres}</p>
-        )}
 
         <CustomInput
           label="Apellidos"
           name="apellidos"
-          value={formData.apellidos}
+          value={formData.jefe.apellidos}
           onChange={handleChange}
           placeholder="Ej: Pérez García"
           required
+          error={errors['jefe.apellidos'] || ""}
         />
-        {errors.apellidos && (
-          <p className="text-error text-xs mt-1">{errors.apellidos}</p>
-        )}
 
         <CustomInput
           label="Cédula / Identidad"
           name="cedula"
-          value={formData.cedula}
+          value={formData.jefe.cedula}
           onChange={handleChange}
           placeholder="Ej: 22123456"
           disabled={!!initialData}
           required
           onlyNumbers
+          error={errors['jefe.cedula'] || ""}
         />
-        {errors.cedula && (
-          <p className="text-error text-xs mt-1">{errors.cedula}</p>
-        )}
 
         <CustomInput
           label="Fecha de Nacimiento"
           name="fechaNacimiento"
-          value={formData.fechaNacimiento}
+          value={formData.jefe.fechaNacimiento}
           onChange={handleChange}
           type="date"
           required
+          error={errors['jefe.fechaNacimiento'] || ""}
         />
-        {errors.fechaNacimiento && (
-          <p className="text-error text-xs mt-1">{errors.fechaNacimiento}</p>
-        )}
 
         <CustomInput
           label="Teléfono de Contacto"
           name="telefono"
-          value={formData.telefono}
+          value={formData.jefe.telefono}
           onChange={handleChange}
           type="tel"
           placeholder="0414-000-0000"
+          error={errors['jefe.telefono'] || ""}
         />
-        {errors.telefono && (
-          <p className="text-error text-xs mt-1">{errors.telefono}</p>
-        )}
 
         <CustomSelect
           label="Género"
           name="genero"
-          value={formData.genero}
+          value={formData.jefe.genero}
           onChange={handleChange}
           options={[
             { label: "Masculino", value: "M" },
             { label: "Femenino", value: "F" },
           ]}
         />
+        {errors['jefe.genero'] && (
+          <p className="text-error text-xs mt-1">{errors['jefe.genero']}</p>
+        )}
+
+        <div className="col-span-2 flex gap-3 mt-3">
+          <div className="flex items-center gap-3">
+            <input
+              type="checkbox"
+              name="discapacitado"
+              id="discapacitato"
+              checked={formData.jefe.discapacitado}
+              onChange={handleChange}
+              className="checkbox checkbox-primary checkbox-sm"
+            />
+            <label htmlFor="discapacitato" className="text-sm font-medium">
+              Persona con discapacidad
+            </label>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <input
+              type="checkbox"
+              name="embarazada"
+              id="embarazada"
+              checked={formData.jefe.embarazada}
+              onChange={handleChange}
+              disabled={formData.jefe.genero === "M"}
+              className="checkbox checkbox-primary checkbox-sm"
+            />
+            <label htmlFor="embarazada" className={`text-sm font-medium ${formData.jefe.genero === "M" ? "text-gray-400" : ""}`}>
+              Embarazada
+            </label>
+          </div>
+        </div>
       </form>
     </CustomModal>
   );

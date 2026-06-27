@@ -1,7 +1,7 @@
-import { FaPhoneAlt, FaPlus } from "react-icons/fa";
+import { FaPhoneAlt, FaPlus, FaPen, FaTrashAlt } from "react-icons/fa";
 import Avatar from "../../../../components/Avatar";
 
-const FamiliarGroupDetails = ({ familyMembers, onAddMember }) => {
+const FamiliarGroupDetails = ({ familyMembers, onAddMember, onEditMember, onDeleteMember }) => {
   const calculateAge = (birthday) => {
     if (!birthday) return "N/A";
     const ageDifMs = Date.now() - new Date(birthday).getTime();
@@ -79,6 +79,22 @@ const FamiliarGroupDetails = ({ familyMembers, onAddMember }) => {
                   <span className="badge badge-secondary badge-outline badge-xs font-bold uppercase">
                     {member.parentesco}
                   </span>
+                  <div className="flex items-center gap-1">
+                    <button
+                      type="button"
+                      onClick={() => onEditMember?.(member)}
+                      className="btn btn-ghost btn-xs btn-circle text-base-content/40 hover:text-primary transition-colors"
+                    >
+                      <FaPen className="text-xs" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => onDeleteMember?.(member)}
+                      className="btn btn-ghost btn-xs btn-circle text-base-content/40 hover:text-error transition-colors"
+                    >
+                      <FaTrashAlt className="text-xs" />
+                    </button>
+                  </div>
                 </div>
 
                 <div className="divider my-2 opacity-20"></div>

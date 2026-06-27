@@ -67,7 +67,6 @@ const CreateProjectModal = ({ isOpen, onClose, initialData, onSuccess }) => {
   };
 
   const handleSubmit = async (e) => {
-    debugger
     e.preventDefault();
     try {
       const validationResult = projectSchema.safeParse(formData);

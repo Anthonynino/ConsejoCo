@@ -67,7 +67,7 @@ const CardResident = ({ resident, idx, onDelete, onEdit, onViewFamily }) => {
                 <li>
                   <button
                     type="button"
-                    onClick={() => onDelete(resident.id)}
+                    onClick={() => onDelete(resident.familia_id)}
                     className="text-error"
                   >
                     Dar de Baja

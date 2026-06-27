@@ -3,6 +3,7 @@ import { z } from "zod";
 import CustomModal from "../../../../components/CustomModal";
 import CustomInput from "../../../../components/CustomInput";
 import CustomSelect from "../../../../components/CustomSelect";
+import { toast } from "react-toastify";
 
 const familyMemberSchema = z.object({
   nombres: z
@@ -52,7 +53,7 @@ const familyMemberSchema = z.object({
   embarazada: z.boolean().optional(),
 });
 
-const CreateFamilyMemberModal = ({ isOpen, onClose, onSave, familyId }) => {
+const CreateFamilyMemberModal = ({ isOpen, onClose, onSave, familyId, initialData }) => {
   const [formData, setFormData] = useState({
     nombres: "",
     apellidos: "",
@@ -67,7 +68,21 @@ const CreateFamilyMemberModal = ({ isOpen, onClose, onSave, familyId }) => {
   const [errors, setErrors] = useState({});
 
   useEffect(() => {
-    if (isOpen) {
+    if (initialData) {
+      setFormData({
+        nombres: initialData.nombres || "",
+        apellidos: initialData.apellidos || "",
+        cedula: initialData.cedula || "",
+        fechaNacimiento: initialData.fechaNacimiento
+          ? initialData.fechaNacimiento.split("T")[0]
+          : "",
+        genero: initialData.genero || "M",
+        telefono: initialData.telefono || "",
+        parentesco: initialData.parentesco || "HIJO",
+        discapacitado: initialData.discapacitado || false,
+        embarazada: initialData.embarazada || false,
+      });
+    } else if (isOpen) {
       setFormData({
         nombres: "",
         apellidos: "",
@@ -79,34 +94,60 @@ const CreateFamilyMemberModal = ({ isOpen, onClose, onSave, familyId }) => {
         discapacitado: false,
         embarazada: false,
       });
-      setErrors({});
     }
-  }, [isOpen]);
+    setErrors({});
+  }, [isOpen, initialData]);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: type === "checkbox" ? checked : value,
-    }));
+    setFormData((prev) => {
+      const newData = {
+        ...prev,
+        [name]: type === "checkbox" ? checked : value,
+      };
+
+      if (name === "genero" && value === "M") {
+        newData.embarazada = false;
+      }
+      return newData;
+    });
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    try {
+      const validationResult = familyMemberSchema.safeParse(formData);
 
-    const parsed = familyMemberSchema.safeParse(formData);
-    if (!parsed.success) {
-      const fieldErrors = Object.fromEntries(
-        Object.entries(parsed.error.formErrors.fieldErrors).map(
-          ([key, messages]) => [key, messages?.[0] || ""]
-        )
-      );
-      setErrors(fieldErrors);
-      return;
+      if (!validationResult.success) {
+        const fieldErrors = validationResult.error.issues.reduce((acc, currentError) => {
+          const field = currentError.path[0];
+          
+          if (!acc[field]) {
+            acc[field] = currentError.message;
+          }
+          return acc;
+        }, {});
+
+        setErrors(fieldErrors);
+        toast.error("Por favor, corrige los errores en el formulario");
+        return;
+      }
+      setErrors({});
+      
+      const formattedData = {
+        ...validationResult.data,
+        familiaId: familyId,
+      };
+      
+      if (initialData) {
+        onSave(formattedData, initialData.id);
+      } else {
+        onSave(formattedData);
+      }
+    } catch (error) {
+      console.error("Error al guardar familiar:", error);
+      toast.error("Error al guardar el familiar");
     }
-
-    setErrors({});
-    onSave(parsed.data);
   };
 
   if (!isOpen) return null;
@@ -116,10 +157,10 @@ const CreateFamilyMemberModal = ({ isOpen, onClose, onSave, familyId }) => {
       isOpen={isOpen}
       onClose={onClose}
       widthClass={"max-w-2xl"}
-      title="Nuevo Miembro Familiar"
-      subtitle="Agregar familiar a la familia"
-      actionText="Agregar Familiar"
-      onActionClick={handleSubmit}
+      title={initialData ? "Editar Familiar" : "Nuevo Miembro Familiar"}
+      subtitle={initialData ? "Actualizar datos del familiar" : "Agregar familiar a la familia"}
+      actionText={initialData ? "Actualizar Familiar" : "Agregar Familiar"}
+      onAction={handleSubmit}
     >
       <form
         onSubmit={handleSubmit}
@@ -132,10 +173,8 @@ const CreateFamilyMemberModal = ({ isOpen, onClose, onSave, familyId }) => {
           onChange={handleChange}
           placeholder="Ej: Marcos Antonio"
           required
+          error={errors.nombres || ""}
         />
-        {errors.nombres && (
-          <p className="text-error text-xs mt-1">{errors.nombres}</p>
-        )}
 
         <CustomInput
           label="Apellidos"
@@ -144,10 +183,8 @@ const CreateFamilyMemberModal = ({ isOpen, onClose, onSave, familyId }) => {
           onChange={handleChange}
           placeholder="Ej: Pérez García"
           required
+          error={errors.apellidos || ""}
         />
-        {errors.apellidos && (
-          <p className="text-error text-xs mt-1">{errors.apellidos}</p>
-        )}
 
         <CustomInput
           label="Cédula / Identidad"
@@ -157,10 +194,8 @@ const CreateFamilyMemberModal = ({ isOpen, onClose, onSave, familyId }) => {
           placeholder="Ej: 22123456"
           required
           onlyNumbers
+          error={errors.cedula || ""}
         />
-        {errors.cedula && (
-          <p className="text-error text-xs mt-1">{errors.cedula}</p>
-        )}
 
         <CustomInput
           label="Fecha de Nacimiento"
@@ -169,10 +204,8 @@ const CreateFamilyMemberModal = ({ isOpen, onClose, onSave, familyId }) => {
           onChange={handleChange}
           type="date"
           required
+          error={errors.fechaNacimiento || ""}
         />
-        {errors.fechaNacimiento && (
-          <p className="text-error text-xs mt-1">{errors.fechaNacimiento}</p>
-        )}
 
         <CustomInput
           label="Teléfono de Contacto"
@@ -181,10 +214,8 @@ const CreateFamilyMemberModal = ({ isOpen, onClose, onSave, familyId }) => {
           onChange={handleChange}
           type="tel"
           placeholder="0414-000-0000"
+          error={errors.telefono || ""}
         />
-        {errors.telefono && (
-          <p className="text-error text-xs mt-1">{errors.telefono}</p>
-        )}
 
         <CustomSelect
           label="Género"
@@ -206,7 +237,6 @@ const CreateFamilyMemberModal = ({ isOpen, onClose, onSave, familyId }) => {
           value={formData.parentesco}
           onChange={handleChange}
           options={[
-            { label: "Jefe", value: "JEFE" },
             { label: "Cónyuge", value: "CONYUGE" },
             { label: "Hijo", value: "HIJO" },
             { label: "Padre", value: "PADRE" },
@@ -219,7 +249,7 @@ const CreateFamilyMemberModal = ({ isOpen, onClose, onSave, familyId }) => {
         {errors.parentesco && (
           <p className="text-error text-xs mt-1">{errors.parentesco}</p>
         )}
-
+      <div className="col-span-2 flex gap-3 mt-3">
         <div className="flex items-center gap-3">
           <input
             type="checkbox"
@@ -241,11 +271,13 @@ const CreateFamilyMemberModal = ({ isOpen, onClose, onSave, familyId }) => {
             id="embarazada"
             checked={formData.embarazada}
             onChange={handleChange}
+            disabled={formData.genero === "M"}
             className="checkbox checkbox-primary checkbox-sm"
           />
-          <label htmlFor="embarazada" className="text-sm font-medium">
+          <label htmlFor="embarazada" className={`text-sm font-medium ${formData.genero === "M" ? "text-gray-400" : ""}`}>
             Embarazada
           </label>
+        </div>
         </div>
       </form>
     </CustomModal>

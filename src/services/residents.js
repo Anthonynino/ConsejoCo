@@ -20,18 +20,18 @@ export const deleteResident = async (id) => {
   return data;
 };
 
-export const createFamilyMember = async (familyId, data) => {
-  const { data } = await api.post(`/api/familia/${familyId}/familiar`, data)
+export const createFamilyMember = async (familyId, bodyData) => {
+  const { data } = await api.post(`/familia/${familyId}/familiar`, bodyData)
   return data
 }
 
-export const updateFamilyMember = async (familyId, memberId, data) => {
-  const { data } = await api.patch(`/api/familia/${familyId}/familiar/${memberId}`, data)
+export const updateFamilyMember = async (familyId, memberId, bodyData) => {
+  const { data } = await api.patch(`/familia/${familyId}/familiar/${memberId}`, bodyData)
   return data
 }
 
-export const deleteFamilyMember = async (familyId, memberId, data) => {
-  const { data } = await api.delete(`/api/familia/${familyId}/familiar/${memberId}`, data)
+export const deleteFamilyMember = async (familyId, memberId, bodyData) => {
+  const { data } = await api.delete(`/familia/${familyId}/familiar/${memberId}`, bodyData)
   return data
 }
 

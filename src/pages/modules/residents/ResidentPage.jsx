@@ -5,6 +5,7 @@ import CreateFamilyMemberModal from "./modals/CreateFamilyMemberModal";
 import FamiliarGroupDetails from "./modals/FamiliarGroupDetails";
 import CustomModal from "../../../components/CustomModal";
 import HeaderModules from "../../../components/HeaderModules";
+import DeleteModal from "../../../modals/DeleteModal";
 import {
   getResidents,
   deleteResident,
@@ -12,6 +13,8 @@ import {
   updateResident,
   getFamilyMembers,
   createFamilyMember,
+  updateFamilyMember,
+  deleteFamilyMember,
 } from "../../../services/residents";
 import { toast } from "react-toastify";
 
@@ -27,6 +30,11 @@ const ResidentPage = () => {
   const [selectedFamilyHead, setSelectedFamilyHead] = useState(null);
   const [loadingFamily, setLoadingFamily] = useState(false);
   const [isCreateFamilyMemberOpen, setIsCreateFamilyMemberOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [residentToDelete, setResidentToDelete] = useState(null);
+  const [editingFamilyMember, setEditingFamilyMember] = useState(null);
+  const [isDeleteFamilyMemberModalOpen, setIsDeleteFamilyMemberModalOpen] = useState(false);
+  const [familyMemberToDelete, setFamilyMemberToDelete] = useState(null);
 
   const fetchResidents = useCallback(async () => {
     try {
@@ -53,12 +61,19 @@ const ResidentPage = () => {
     fetchResidents();
   }, [fetchResidents]);
 
-  const handleDelete = async (id) => {
-    if (!confirm("¿Estás seguro de eliminar este habitante?")) return;
+  const handleDelete = (id) => {
+    setResidentToDelete(id);
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!residentToDelete) return;
     try {
-      await deleteResident(id);
+      await deleteResident(residentToDelete);
       toast.success("Habitante eliminado con éxito");
       fetchResidents();
+      setIsDeleteModalOpen(false);
+      setResidentToDelete(null);
     } catch (error) {
       console.error("Error deleting resident:", error);
       toast.error("Error al eliminar el habitante");
@@ -73,7 +88,7 @@ const ResidentPage = () => {
   const handleSave = async (residentData) => {
     try {
       if (editingResident) {
-        await updateResident(editingResident.id, residentData);
+        await updateResident(editingResident.familia_id, residentData);
         toast.success("Habitante actualizado con éxito");
       } else {
         await createResident({ ...residentData, consejoComunalId: 1 });
@@ -103,38 +118,52 @@ const ResidentPage = () => {
     }
   };
 
-  const handleCreateFamilyMember = async (memberData) => {
+  const handleCreateFamilyMember = async (memberData, memberId = null) => {
     try {
-      await createFamilyMember(selectedFamilyHead.familia_id, memberData);
-      toast.success("Familiar agregado con éxito");
+      if (memberId) {
+        await updateFamilyMember(selectedFamilyHead.familia_id, memberId, memberData);
+        toast.success("Familiar actualizado con éxito");
+      } else {
+        await createFamilyMember(selectedFamilyHead.familia_id, memberData);
+        toast.success("Familiar agregado con éxito");
+      }
       setIsCreateFamilyMemberOpen(false);
+      setEditingFamilyMember(null);
       const response = await getFamilyMembers(selectedFamilyHead.familia_id);
       setFamilyMembers(response.data || []);
     } catch (error) {
-      console.error("Error creating family member:", error);
-      toast.error("Error al agregar el familiar");
+      console.error("Error saving family member:", error);
+      toast.error("Error al guardar el familiar");
+    }
+  };
+
+  const handleEditFamilyMember = (member) => {
+    setEditingFamilyMember(member);
+    setIsCreateFamilyMemberOpen(true);
+  };
+
+  const handleDeleteFamilyMember = (member) => {
+    setFamilyMemberToDelete(member);
+    setIsDeleteFamilyMemberModalOpen(true);
+  };
+
+  const handleConfirmDeleteFamilyMember = async () => {
+    if (!familyMemberToDelete) return;
+    try {
+      await deleteFamilyMember(selectedFamilyHead.familia_id, familyMemberToDelete.id);
+      toast.success("Familiar eliminado con éxito");
+      setIsDeleteFamilyMemberModalOpen(false);
+      setFamilyMemberToDelete(null);
+      const response = await getFamilyMembers(selectedFamilyHead.familia_id);
+      setFamilyMembers(response.data || []);
+    } catch (error) {
+      console.error("Error deleting family member:", error);
+      toast.error("Error al eliminar el familiar");
     }
   };
 
   return (
     <div className="w-full space-y-8 p-6 mx-auto animate-in fade-in duration-700">
-      <CreateResidentModal
-        isOpen={isModalOpen}
-        onClose={() => {
-          setIsModalOpen(false);
-          setEditingResident(null);
-        }}
-        onSave={handleSave}
-        initialData={editingResident}
-      />
-
-      <CreateFamilyMemberModal
-        isOpen={isCreateFamilyMemberOpen}
-        onClose={() => setIsCreateFamilyMemberOpen(false)}
-        onSave={handleCreateFamilyMember}
-        familyId={selectedFamilyHead?.familia_id}
-      />
-
       <CustomModal
         isOpen={isFamilyModalOpen}
         onClose={() => {
@@ -159,10 +188,60 @@ const ResidentPage = () => {
         ) : (
           <FamiliarGroupDetails
             familyMembers={familyMembers}
-            onAddMember={() => setIsCreateFamilyMemberOpen(true)}
+            onAddMember={() => {
+              setEditingFamilyMember(null);
+              setIsCreateFamilyMemberOpen(true);
+            }}
+            onEditMember={handleEditFamilyMember}
+            onDeleteMember={handleDeleteFamilyMember}
           />
         )}
       </CustomModal>
+
+      <CreateFamilyMemberModal
+        isOpen={isCreateFamilyMemberOpen}
+        onClose={() => {
+          setIsCreateFamilyMemberOpen(false);
+          setEditingFamilyMember(null);
+        }}
+        onSave={handleCreateFamilyMember}
+        familyId={selectedFamilyHead?.familia_id}
+        initialData={editingFamilyMember}
+      />
+
+      <DeleteModal
+        isOpen={isDeleteFamilyMemberModalOpen}
+        onClose={() => {
+          setIsDeleteFamilyMemberModalOpen(false);
+          setFamilyMemberToDelete(null);
+        }}
+        title="Eliminar Familiar"
+        message="¿Estás seguro de que deseas eliminar este familiar? Esta acción no se puede deshacer."
+        onConfirm={handleConfirmDeleteFamilyMember}
+        actionText="Eliminar"
+      />
+      
+      <CreateResidentModal
+        isOpen={isModalOpen}
+        onClose={() => {
+          setIsModalOpen(false);
+          setEditingResident(null);
+        }}
+        onSave={handleSave}
+        initialData={editingResident}
+      />
+
+      <DeleteModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => {
+          setIsDeleteModalOpen(false);
+          setResidentToDelete(null);
+        }}
+        title="Eliminar Habitante"
+        message="¿Estás seguro de que deseas eliminar este habitante? Esta acción no se puede deshacer."
+        onConfirm={handleConfirmDelete}
+        actionText="Eliminar"
+      />
 
       <HeaderModules
         title={"Gestión de Habitantes"}
