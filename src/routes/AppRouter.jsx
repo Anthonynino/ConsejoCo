@@ -16,6 +16,7 @@ import MinutePage from "../pages/modules/minutes/MinutePage.jsx";
 import DocumentPage from "../pages/modules/documents/DocumentPage.jsx";
 import Dashboard from "../pages/modules/dashboard/dashboard.jsx";
 import Login from "../pages/auth/Login.jsx";
+import StatisticsPage from "../pages/modules/statistics/StatisticsPage.jsx";
 
 
 export default function AppRouter() {
@@ -41,6 +42,7 @@ export default function AppRouter() {
             <Route path="/proceedings/enginery" element={<EngineryPage />} />
             <Route path="/proceedings/economy" element={<EconomyPage />} />
             <Route path="/finances" element={<FinancePage />} />
+            <Route path="/statistics" element={<StatisticsPage />} />
           </Route>
         </Route>
       </Routes>

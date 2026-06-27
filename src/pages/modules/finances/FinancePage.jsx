@@ -7,7 +7,7 @@ import CreateTransactionModal from "./components/CreateTransactionModal";
 import StadisticCard from "../../../components/StadisticCard";
 import CustomInput from "../../../components/CustomInput";
 import CustomSelect from "../../../components/CustomSelect";
-import { getTransactions, getResumen } from "../../../services/finances";
+import { getTransactions, getResumen, getReporteFinanzas } from "../../../services/finances";
 
 export default function FinanzasPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -19,6 +19,7 @@ export default function FinanzasPage() {
   const [dateRange, setDateRange] = useState("Todos");
   const [page, setPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
+  const [loadingReporte, setLoadingReporte] = useState(false)
 
 const fetchData = async (currentPage = 1) => {
   setLoading(true)
@@ -34,6 +35,21 @@ const fetchData = async (currentPage = 1) => {
     toast.error('Error al cargar los datos')
   } finally {
     setLoading(false)
+  }
+}
+
+const handleReporte = async () => {
+  setLoadingReporte(true)
+  try {
+    await getReporteFinanzas({
+      tipo: filterType === 'Todos' ? undefined : filterType.toUpperCase(),
+      dateRange
+    })
+    toast.success('Reporte generado correctamente')
+  } catch (error) {
+    toast.error('Error al generar el reporte')
+  } finally {
+    setLoadingReporte(false)
   }
 }
 
@@ -83,6 +99,8 @@ useEffect(() => {
         titleBtn="Nuevo movimiento"
       />
 
+     
+
       <StadisticCard stats={stats} cols={3} />
 
       <div className="flex flex-col md:flex-row gap-4 border-y border-base-200 py-4">
@@ -108,6 +126,13 @@ useEffect(() => {
           value={dateRange}
           onChange={(e) => setDateRange(e.target.value)}
         />
+         <button
+          onClick={handleReporte}
+          disabled={loadingReporte}
+          className="btn btn-neutral btn-sm md:max-w-60 my-auto mx-auto"
+        >
+        {loadingReporte ? 'Generando...' : 'Exportar PDF'}
+        </button>
       </div>
 
       <TransactionTable transaction={filteredMovements} loading={loading} page={page} totalPages={totalPages} onPageChange={setPage} />

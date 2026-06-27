@@ -11,6 +11,7 @@ import {
   FaHome,
   FaHandsHelping,
   FaSignOutAlt,
+  FaMoneyBillWave
 } from "react-icons/fa";
 
 const navigation = [
@@ -20,8 +21,9 @@ const navigation = [
   { name: "Habitantes", path: "/residents", icon: FaUsers },
   { name: "Actas", path: "/proceedings", icon: FaFileAlt },
   { name: "Documentos", path: "/documents", icon: FaFolderOpen },
-  { name: "Finanzas", path: "/finances", icon: FaChartLine },
+  { name: "Finanzas", path: "/finances", icon: FaMoneyBillWave },
   { name: "Miembros", path: "/members", icon: FaUserCog },
+  {name:"Estadisticas", path:"/statistics", icon: FaChartLine}
 ];
 
 const AppLayout = () => {
