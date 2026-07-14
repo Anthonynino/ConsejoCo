@@ -10,21 +10,11 @@ import {
   FaFileExcel, 
   FaArrowLeft,
   FaCheck,
-  FaTrash
 } from "react-icons/fa";
 import CustomInput from "../../../components/CustomInput";
 import { createCensus, getCensuses, updateCensus } from "../../../services/censuses";
+import { getResidents } from "../../../services/residents";
 
-const MOCK_FAMILIES = [
-  { id: 1, cedula: "V-12.345.678", nombres: "Juan", apellidos: "Pérez" },
-  { id: 2, cedula: "V-23.456.789", nombres: "María", apellidos: "García" },
-  { id: 3, cedula: "V-34.567.890", nombres: "Pedro", apellidos: "Rodríguez" },
-  { id: 4, cedula: "V-45.678.901", nombres: "Ana", apellidos: "Martínez" },
-  { id: 5, cedula: "V-56.789.012", nombres: "Luis", apellidos: "Sánchez" },
-  { id: 6, cedula: "V-67.890.123", nombres: "Laura", apellidos: "Torres" },
-  { id: 7, cedula: "V-78.901.234", nombres: "Carlos", apellidos: "Díaz" },
-  { id: 8, cedula: "V-89.012.345", nombres: "Elena", apellidos: "Morales" },
-];
 
 const mapApiCensusToState = (censo) => ({
   id: censo.id,
@@ -37,8 +27,9 @@ const mapApiCensusToState = (censo) => ({
 });
 
 const ClapPage = () => {
-  const [view, setView] = useState("LIST"); // LIST, FORM, DELIVERY
+  const [view, setView] = useState("LIST"); 
   const [censuses, setCensuses] = useState([]);
+  const [families, setFamilies] = useState([]);
   const [selectedCensus, setSelectedCensus] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [isSaving, setIsSaving] = useState(false);
@@ -63,7 +54,18 @@ const ClapPage = () => {
       }
     };
 
+    const fetchFamilies = async () => {
+      try {
+        const response = await getResidents({ limit: 1000 }); // Intentar conseguir todos para la creación de censo
+        setFamilies(response?.data ?? response ?? []);
+      } catch (error) {
+        console.error("Error fetching families:", error);
+        toast.error("Error al cargar las familias");
+      }
+    };
+
     fetchCensuses();
+    fetchFamilies();
   }, []);
 
   const handleCreateNew = () => {
@@ -109,7 +111,8 @@ const ClapPage = () => {
         const payload = {
           fecha: fechaInicio,
           fechaCierre: selectedCensus.fechaCierre || null,
-          estado: selectedCensus.estado === "finalizado" ? "FINALIZADO" : "EN_ESPERA"
+          estado: selectedCensus.estado === "finalizado" ? "FINALIZADO" : "EN_ESPERA",
+          familiaIds: formSelectedFamilies
         };
 
         const updatedCensus = await updateCensus(selectedCensus.id, payload);
@@ -120,6 +123,7 @@ const ClapPage = () => {
           ...c,
           ...updatedState,
           familias: formSelectedFamilies,
+          totalFamilias: formSelectedFamilies.length,
           entregas: c.entregas
         } : c));
 
@@ -137,6 +141,7 @@ const ClapPage = () => {
         const newCensus = {
           ...createdState,
           familias: formSelectedFamilies,
+          totalFamilias: formSelectedFamilies.length,
           entregas: {},
         };
 
@@ -193,10 +198,10 @@ const ClapPage = () => {
     }
   };
 
-  const filteredFamilies = MOCK_FAMILIES.filter(f => 
-    f.nombres.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    f.apellidos.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    f.cedula.includes(searchTerm)
+  const filteredFamilies = families.filter(f => 
+    (f.nombres || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (f.apellidos || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (f.cedula || "").includes(searchTerm)
   );
 
   return (
@@ -312,11 +317,12 @@ const ClapPage = () => {
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 max-h-100 overflow-y-auto p-2">
                 {filteredFamilies.map((family) => {
-                  const isSelected = formSelectedFamilies.includes(family.id);
+                  const familyId = family.familia_id || family.id;
+                  const isSelected = formSelectedFamilies.includes(familyId);
                   return (
                     <div 
-                      key={family.id}
-                      onClick={() => toggleFamilySelection(family.id)}
+                      key={familyId}
+                      onClick={() => toggleFamilySelection(familyId)}
                       className={`cursor-pointer p-4 rounded-2xl border transition-all flex justify-between items-center ${
                         isSelected 
                           ? 'bg-primary/20 border-primary shadow-md' 
@@ -390,11 +396,12 @@ const ClapPage = () => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 pb-12">
-            {MOCK_FAMILIES.filter(f => selectedCensus.familias.includes(f.id)).map(family => {
-              const hasReceived = selectedCensus.entregas[family.id];
+            {families.filter(f => selectedCensus.familias.includes(f.familia_id || f.id)).map(family => {
+              const familyId = family.familia_id || family.id;
+              const hasReceived = selectedCensus.entregas[familyId];
               return (
                 <div 
-                  key={family.id}
+                  key={familyId}
                   className={`card shadow-sm border transition-all ${
                     hasReceived ? 'bg-success/10 border-success' : 'bg-base-100 border-base-200'
                   }`}
@@ -409,7 +416,7 @@ const ClapPage = () => {
                         type="checkbox" 
                         className="checkbox checkbox-success checkbox-lg" 
                         checked={!!hasReceived}
-                        onChange={() => toggleDeliveryStatus(family.id)}
+                        onChange={() => toggleDeliveryStatus(familyId)}
                       />
                     </div>
                   </div>
