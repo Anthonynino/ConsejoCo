@@ -10,8 +10,11 @@ import CustomInput from "../../../components/CustomInput";
 import CustomSelect from "../../../components/CustomSelect";
 import { getDocuments, deleteDocument } from "../../../services/documents";
 import { toast } from "react-toastify";
+import { useAuth } from "../../../context/AuthContext";
 
 const DocumentPage = () => {
+  const { user } = useAuth();
+  const isAdmin = user?.rol === "ADMIN";
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingDocument, setEditingDocument] = useState(null);
   const [documents, setDocuments] = useState([]);
@@ -141,8 +144,8 @@ const DocumentPage = () => {
         title={"Documentos"}
         description={`Gestión y almacenamiento de la documentación oficial del consejo
             comunal`}
-        onActionBtn={handleCreate}
-        titleBtn={"Subir Documento"}
+        onActionBtn={isAdmin ? handleCreate : undefined}
+        titleBtn={isAdmin ? "Subir Documento" : undefined}
       />
 
       {/* Navigation & Controls */}
@@ -184,7 +187,7 @@ const DocumentPage = () => {
       {/* Documents Grid Section */}
       {!loading && !error && (
         <div className="space-y-4">
-          <DocumentGrid documents={filteredDocuments} onEdit={handleEdit} onDelete={handleDelete} />
+          <DocumentGrid documents={filteredDocuments} onEdit={isAdmin ? handleEdit : undefined} onDelete={isAdmin ? handleDelete : undefined} />
         </div>
       )}
 

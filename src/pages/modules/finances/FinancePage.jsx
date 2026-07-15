@@ -8,8 +8,11 @@ import StadisticCard from "../../../components/StadisticCard";
 import CustomInput from "../../../components/CustomInput";
 import CustomSelect from "../../../components/CustomSelect";
 import { getTransactions, getResumen, getReporteFinanzas } from "../../../services/finances";
+import { useAuth } from "../../../context/AuthContext";
 
 export default function FinanzasPage() {
+  const { user } = useAuth();
+  const isAdmin = user?.rol === "ADMIN";
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [transactions, setTransactions] = useState([]);
   const [resumen, setResumen] = useState({ totalIngresos: 0, totalEgresos: 0, balance: 0 });
@@ -31,7 +34,7 @@ const fetchData = async (currentPage = 1) => {
     setTransactions(transData.data)
     setTotalPages(transData.meta.totalPages)
     setResumen(resumenData.data)
-  } catch (error) {
+  } catch {
     toast.error('Error al cargar los datos')
   } finally {
     setLoading(false)
@@ -46,7 +49,7 @@ const handleReporte = async () => {
       dateRange
     })
     toast.success('Reporte generado correctamente')
-  } catch (error) {
+  } catch {
     toast.error('Error al generar el reporte')
   } finally {
     setLoadingReporte(false)
@@ -95,8 +98,8 @@ useEffect(() => {
       <HeaderModules
         title="Finanzas"
         description="Control de ingresos y egresos de la comunidad"
-        onActionBtn={() => setIsModalOpen(true)}
-        titleBtn="Nuevo movimiento"
+        onActionBtn={isAdmin ? () => setIsModalOpen(true) : undefined}
+        titleBtn={isAdmin ? "Nuevo movimiento" : undefined}
       />
 
      

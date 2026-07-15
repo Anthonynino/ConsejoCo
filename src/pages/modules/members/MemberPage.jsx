@@ -6,8 +6,11 @@ import HeaderModules from "../../../components/HeaderModules";
 import { FaSearch } from "react-icons/fa";
 import CustomInput from "../../../components/CustomInput";
 import { getMembers, createMember, updateMember, deleteMember } from "../../../services/members";
+import { useAuth } from "../../../context/AuthContext";
 
 const MemberPage = () => {
+  const { user } = useAuth();
+  const isAdmin = user?.rol === "ADMIN";
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [memberToEdit, setMemberToEdit] = useState(null);
   const [members, setMembers] = useState([]);
@@ -96,8 +99,8 @@ const MemberPage = () => {
       <HeaderModules
         title={"Miembros"}
         description={`${members.length} miembros registrados`}
-        onActionBtn={handleOpenCreate}
-        titleBtn={"Nuevo miembro"}
+        onActionBtn={isAdmin ? handleOpenCreate : undefined}
+        titleBtn={isAdmin ? "Nuevo miembro" : undefined}
       />
       <div className="flex flex-col md:flex-row gap-4 border-y border-base-200 py-4">
         <CustomInput
@@ -119,8 +122,8 @@ const MemberPage = () => {
               key={miembro.id} 
               idx={idx} 
               miembro={miembro} 
-              onEdit={() => handleOpenEdit(miembro)}
-              onDelete={() => handleDelete(miembro.id)}
+              onEdit={isAdmin ? () => handleOpenEdit(miembro) : undefined}
+              onDelete={isAdmin ? () => handleDelete(miembro.id) : undefined}
             />
           ))}
         </div>

@@ -50,11 +50,13 @@ const CardResident = ({ resident, idx, onDelete, onEdit, onViewFamily }) => {
                 tabIndex={0}
                 className="dropdown-content z-1 menu p-2 shadow bg-base-100 rounded-box w-48 border border-base-200"
               >
+                {onEdit && (
                 <li>
                   <button type="button" onClick={() => onEdit?.(resident)}>
                     Editar Datos
                   </button>
                 </li>
+                )}
                 <li>
                   <button 
                     type="button" 
@@ -64,6 +66,7 @@ const CardResident = ({ resident, idx, onDelete, onEdit, onViewFamily }) => {
                     Ver Grupo Familiar
                   </button>
                 </li>
+                {onDelete && (
                 <li>
                   <button
                     type="button"
@@ -73,6 +76,7 @@ const CardResident = ({ resident, idx, onDelete, onEdit, onViewFamily }) => {
                     Dar de Baja
                   </button>
                 </li>
+                )}
               </ul>
             </div>
           </div>

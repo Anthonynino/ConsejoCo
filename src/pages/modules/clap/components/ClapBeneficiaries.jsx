@@ -1,6 +1,7 @@
 import { FaSearch, FaEllipsisV } from "react-icons/fa";
 import CustomInput from "../../../../components/CustomInput";
 import Avatar from "../../../../components/Avatar";
+import { useAuth } from "../../../../context/AuthContext";
 
 const MOCK_FAMILIES = [
   {
@@ -30,6 +31,8 @@ const MOCK_FAMILIES = [
 ];
 
 const ClapBeneficiaries = () => {
+  const { user } = useAuth();
+  const isAdmin = user?.rol === "ADMIN";
   return (
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row gap-4 border-y border-base-200 py-4">
@@ -73,9 +76,11 @@ const ClapBeneficiaries = () => {
                     <li>
                       <a>Ver Ficha Familiar</a>
                     </li>
+                    {isAdmin && (
                     <li>
                       <a className="text-error">Suspender Beneficio</a>
                     </li>
+                    )}
                   </ul>
                 </div>
               </div>

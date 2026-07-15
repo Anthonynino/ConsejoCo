@@ -7,6 +7,21 @@ export const getCensuses = async (consejoComunalId = 1) => {
   return response.data;
 };
 
+export const getPDFCensuse = async (censuseId) => {
+  const response = await api.get(`/censo/${censuseId}/reporte-clap`, {
+    responseType: 'blob',
+  });
+  
+  const url = URL.createObjectURL(new Blob([response.data], { type: 'application/pdf' }));
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = `reporte_clap_${censuseId}.pdf`;
+  link.click();
+  URL.revokeObjectURL(url);
+  
+  return response.data;
+};
+
 export const createCensus = async (data) => {
   const response = await api.post(`/censo`, data);
   return response.data;

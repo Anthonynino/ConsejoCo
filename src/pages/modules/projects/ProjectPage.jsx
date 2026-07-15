@@ -14,8 +14,11 @@ import StadisticCard from "../../../components/StadisticCard";
 import CustomInput from "../../../components/CustomInput";
 import CustomSelect from "../../../components/CustomSelect";
 import { getProjects, deleteProject } from "../../../services/projects";
+import { useAuth } from "../../../context/AuthContext";
 
 const ProjectPage = () => {
+  const { user } = useAuth();
+  const isAdmin = user?.rol === "ADMIN";
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingProject, setEditingProject] = useState(null);
   const [projects, setProjects] = useState([]);
@@ -177,8 +180,8 @@ const ProjectPage = () => {
       <HeaderModules
         title={"Gestión de Proyectos"}
         description={`Seguimiento de obras, iniciativas sociales y recursos de la comunidad`}
-        onActionBtn={handleCreate}
-        titleBtn={"Nuevo Proyecto"}
+        onActionBtn={isAdmin ? handleCreate : undefined}
+        titleBtn={isAdmin ? "Nuevo Proyecto" : undefined}
       />
 
       {/* Stats Dashboard */}
@@ -238,8 +241,8 @@ const ProjectPage = () => {
             <ProjectCard
               key={project.id}
               project={project}
-              onEdit={() => handleEdit(project)}
-              onDelete={handleDelete}
+              onEdit={isAdmin ? () => handleEdit(project) : undefined}
+              onDelete={isAdmin ? handleDelete : undefined}
             />
           ))}
         </div>

@@ -21,11 +21,13 @@ const CardMember = ({ miembro, idx, onEdit, onDelete }) => {
               </p>
             </div>
           </div>
+          {onEdit && (
           <button 
             onClick={onEdit}
             className="btn btn-ghost btn-circle btn-xs text-base-content/40 hover:text-primary transition-colors">
             <FaPen className="h-3 w-3" />
           </button>
+          )}
         </div>
 
         <div className="divider my-1 opacity-20"></div>
@@ -59,12 +61,14 @@ const CardMember = ({ miembro, idx, onEdit, onDelete }) => {
           </div>
 
           <div className="card-actions">
+            {onDelete && (
             <button 
               onClick={onDelete}
               className="btn btn-outline btn-error btn-sm btn-block hover:shadow-lg hover:shadow-error/20 transition-all gap-2 lowercase font-bold">
               <MdDelete className="text-lg" />
               Eliminar
             </button>
+            )}
           </div>
         </div>
       </div>

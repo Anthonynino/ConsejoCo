@@ -17,8 +17,11 @@ import {
   deleteFamilyMember,
 } from "../../../services/residents";
 import { toast } from "react-toastify";
+import { useAuth } from "../../../context/AuthContext";
 
 const ResidentPage = () => {
+  const { user } = useAuth();
+  const isAdmin = user?.rol === "ADMIN";
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [residents, setResidents] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -188,12 +191,12 @@ const ResidentPage = () => {
         ) : (
           <FamiliarGroupDetails
             familyMembers={familyMembers}
-            onAddMember={() => {
+            onAddMember={isAdmin ? () => {
               setEditingFamilyMember(null);
               setIsCreateFamilyMemberOpen(true);
-            }}
-            onEditMember={handleEditFamilyMember}
-            onDeleteMember={handleDeleteFamilyMember}
+            } : undefined}
+            onEditMember={isAdmin ? handleEditFamilyMember : undefined}
+            onDeleteMember={isAdmin ? handleDeleteFamilyMember : undefined}
           />
         )}
       </CustomModal>
@@ -248,11 +251,11 @@ const ResidentPage = () => {
         description={
           "Visualización y administración de los habitantes registrados en la comunidad"
         }
-        onActionBtn={() => {
+        onActionBtn={isAdmin ? () => {
           setEditingResident(null);
           setIsModalOpen(true);
-        }}
-        titleBtn={"Nuevo Habitante"}
+        } : undefined}
+        titleBtn={isAdmin ? "Nuevo Habitante" : undefined}
       />
 
       <div className="space-y-4">
@@ -264,8 +267,8 @@ const ResidentPage = () => {
           <>
             <ResidentTable
               residents={residents}
-              onDelete={handleDelete}
-              onEdit={handleEdit}
+              onDelete={isAdmin ? handleDelete : undefined}
+              onEdit={isAdmin ? handleEdit : undefined}
               onViewFamily={handleViewFamily}
               totalResidents={meta.total}
               meta={meta}

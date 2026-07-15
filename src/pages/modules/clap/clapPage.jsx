@@ -12,8 +12,9 @@ import {
   FaCheck,
 } from "react-icons/fa";
 import CustomInput from "../../../components/CustomInput";
-import { createCensus, getCensuses, updateCensus } from "../../../services/censuses";
+import { createCensus, getCensuses, updateCensus, getPDFCensuse } from "../../../services/censuses";
 import { getResidents } from "../../../services/residents";
+import { useAuth } from "../../../context/AuthContext";
 
 
 const mapApiCensusToState = (censo) => ({
@@ -33,8 +34,8 @@ const ClapPage = () => {
   const [selectedCensus, setSelectedCensus] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [isSaving, setIsSaving] = useState(false);
-  
-  // States for the creation/edit form
+  const { user } = useAuth();
+  const isAdmin = user?.rol === "ADMIN";
   const [formSelectedFamilies, setFormSelectedFamilies] = useState([]);
   const [fechaInicio, setFechaInicio] = useState("");
 
@@ -104,7 +105,6 @@ const ClapPage = () => {
       toast.error("Debe seleccionar una fecha de inicio");
       return;
     }
-
     setIsSaving(true);
     try {
       if (selectedCensus) {
@@ -175,7 +175,7 @@ const ClapPage = () => {
       const payload = {
         fecha: selectedCensus.fechaInicio,
         fechaCierre: new Date().toISOString().split('T')[0],
-        estado: "EN_ESPERA"
+        estado: "FINALIZADO"
       };
 
       const updatedCensus = await updateCensus(selectedCensus.id, payload);
@@ -198,6 +198,20 @@ const ClapPage = () => {
     }
   };
 
+  const [isExporting, setIsExporting] = useState(false);
+  const handleExportReport = async (censusId) => {
+    setIsExporting(true);
+    try {
+      await getPDFCensuse(censusId);
+      toast.success("Reporte exportado correctamente");
+    } catch (error) {
+      console.error("Error exporting report:", error);
+      toast.error("Error al exportar el reporte");
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
   const filteredFamilies = families.filter(f => 
     (f.nombres || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
     (f.apellidos || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -211,16 +225,16 @@ const ClapPage = () => {
           <HeaderModules
             title="Gestión de Censos CLAP"
             description="Control de censos y jornadas de distribución de alimentos"
-            onActionBtn={handleCreateNew}
-            titleBtn="Crear Nuevo Censo"
+            onActionBtn={isAdmin ? handleCreateNew : undefined}
+            titleBtn={isAdmin ? "Crear Nuevo Censo" : undefined}
           />
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
             {censuses.map((census) => (
               <div 
                 key={census.id}
-                onClick={() => census.estado === 'pendiente' && handleEditCensus(census)}
-                className={`card bg-base-100 shadow-xl border border-base-200 hover:shadow-2xl transition-all group overflow-hidden ${census.estado === 'pendiente' ? 'cursor-pointer active:scale-95' : ''}`}
+                onClick={() => isAdmin && census.estado === 'pendiente' && handleEditCensus(census)}
+                className={`card bg-base-100 shadow-xl border border-base-200 hover:shadow-2xl transition-all group overflow-hidden ${isAdmin && census.estado === 'pendiente' ? 'cursor-pointer active:scale-95' : ''}`}
               >
                 <div className={`h-2 w-full ${census.estado === 'pendiente' ? 'bg-warning' : 'bg-success'}`} />
                 <div className="card-body p-5">
@@ -256,6 +270,7 @@ const ClapPage = () => {
                   <div className="card-actions justify-end mt-6 flex-wrap gap-2">
                     {census.estado === 'pendiente' ? (
                       <>
+                        {isAdmin && (
                         <button 
                           className="btn btn-primary btn-sm"
                           onClick={(e) => {
@@ -265,10 +280,18 @@ const ClapPage = () => {
                         >
                           Iniciar Jornada
                         </button>
+                        )}
                       </>
                     ) : (
-                      <button className="btn btn-outline btn-sm btn-info gap-2" onClick={(e) => e.stopPropagation()}>
-                        <FaFileExcel /> Exportar Reporte
+                      <button 
+                        className="btn btn-outline btn-sm btn-info gap-2" 
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleExportReport(census.id);
+                        }}
+                        disabled={isExporting}
+                      >
+                        <FaFileExcel /> {isExporting ? 'Exportando...' : 'Exportar Reporte'}
                       </button>
                     )}
                   </div>

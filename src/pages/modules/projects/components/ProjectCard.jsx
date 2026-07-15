@@ -22,18 +22,22 @@ const ProjectCard = ({ project, onEdit, onDelete }) => {
   return (
     <div className="card bg-base-100 border border-base-200 shadow-sm hover:shadow-md transition-all group relative">
       <div className="absolute top-4 right-4 flex gap-2">
+        {onEdit && (
         <button
           onClick={onEdit}
           className="btn btn-circle btn-ghost btn-sm"
         >
           <FaEdit size={14} />
         </button>
+        )}
+        {onDelete && (
         <button
           onClick={() => onDelete(project)}
           className="btn btn-circle btn-ghost btn-sm text-error hover:bg-error/10"
         >
           <FaTrash size={14} />
         </button>
+        )}
       </div>
 
       <div className="card-body p-5">

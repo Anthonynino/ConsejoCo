@@ -9,8 +9,11 @@ import {
   FaFileSignature,
   FaUsers,
 } from "react-icons/fa";
+import { useAuth } from "../../../context/AuthContext";
 
 const MinutePage = () => {
+  const { user } = useAuth();
+  const isAdmin = user?.rol === "ADMIN";
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const stats = [
@@ -56,8 +59,8 @@ const MinutePage = () => {
         title={"Registro de Actas"}
         description={`Gestión y archivo oficial de asambleas, reuniones y acuerdos
             comunitarios`}
-        onActionBtn={() => setIsModalOpen(true)}
-        titleBtn={"Nueva Acta"}
+        onActionBtn={isAdmin ? () => setIsModalOpen(true) : undefined}
+        titleBtn={isAdmin ? "Nueva Acta" : undefined}
       />
 
       <StadisticCard stats={stats} />
