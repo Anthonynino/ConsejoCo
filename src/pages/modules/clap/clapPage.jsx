@@ -15,6 +15,7 @@ import CustomInput from "../../../components/CustomInput";
 import { createCensus, getCensuses, updateCensus, getPDFCensuse } from "../../../services/censuses";
 import { getResidents } from "../../../services/residents";
 import { useAuth } from "../../../context/AuthContext";
+import BombonaAssignmentModal from "./components/BombonaAssignmentModal";
 
 
 const mapApiCensusToState = (censo) => ({
@@ -25,6 +26,8 @@ const mapApiCensusToState = (censo) => ({
   estado: censo.estado === "EN_ESPERA" ? "pendiente" : censo.estado === "FINALIZADO" ? "finalizado" : censo.estado?.toLowerCase() ?? "pendiente",
   familias: censo.familias?.map((item) => item.familiaId ?? item.id) ?? [],
   entregas: {},
+  esClap: censo.esClap ?? true,
+  familiasConBombonas: censo.familias ?? [],
 });
 
 const ClapPage = () => {
@@ -38,6 +41,10 @@ const ClapPage = () => {
   const isAdmin = user?.rol === "ADMIN";
   const [formSelectedFamilies, setFormSelectedFamilies] = useState([]);
   const [fechaInicio, setFechaInicio] = useState("");
+  const [esClap, setEsClap] = useState(true);
+  const [familiasConBombonas, setFamiliasConBombonas] = useState({});
+  const [isBombonaModalOpen, setIsBombonaModalOpen] = useState(false);
+  const [selectedFamilyForModal, setSelectedFamilyForModal] = useState(null);
 
   useEffect(() => {
     const fetchCensuses = async () => {
@@ -73,6 +80,10 @@ const ClapPage = () => {
     setSelectedCensus(null);
     setFormSelectedFamilies([]);
     setFechaInicio("");
+    setEsClap(true);
+    setFamiliasConBombonas({});
+    setIsBombonaModalOpen(false);
+    setSelectedFamilyForModal(null);
     setView("FORM");
   };
 
@@ -80,6 +91,8 @@ const ClapPage = () => {
     setSelectedCensus(census);
     setFormSelectedFamilies(census.familias);
     setFechaInicio(census.fechaInicio);
+    setEsClap(census.esClap ?? true);
+    setFamiliasConBombonas(census.familiasConBombonas ?? {});
     setView("FORM");
   };
 
@@ -89,11 +102,70 @@ const ClapPage = () => {
   };
 
   const toggleFamilySelection = (familyId) => {
-    setFormSelectedFamilies(prev => 
-      prev.includes(familyId) 
-        ? prev.filter(id => id !== familyId)
-        : [...prev, familyId]
-    );
+    if (esClap) {
+      setFormSelectedFamilies(prev => 
+        prev.includes(familyId) 
+          ? prev.filter(id => id !== familyId)
+          : [...prev, familyId]
+      );
+    } else {
+      const family = families.find(f => (f.familia_id || f.id) === familyId);
+      setSelectedFamilyForModal(family);
+      setIsBombonaModalOpen(true);
+    }
+  };
+
+  const handleModalBombonaUpdate = (familyId, bombonaIndex, field, value) => {
+    setFamiliasConBombonas(prev => ({
+      ...prev,
+      [familyId]: prev[familyId]?.map((bombona, idx) => 
+        idx === bombonaIndex ? { ...bombona, [field]: value } : bombona
+      ) ?? []
+    }));
+  };
+
+  const handleModalAddBombona = (familyId) => {
+    setFamiliasConBombonas(prev => {
+      const BOMBONA_TYPES = ["KG_10", "KG_18", "KG_27"];
+      const existingTypes = prev[familyId]?.map(b => b.tipoBombona) || [];
+      const availableType = BOMBONA_TYPES.find(type => !existingTypes.includes(type));
+      
+      return {
+        ...prev,
+        [familyId]: [...(prev[familyId] ?? []), { tipoBombona: availableType || "KG_10", cantidad: 1 }]
+      };
+    });
+  };
+
+  const handleModalRemoveBombona = (familyId, bombonaIndex) => {
+    setFamiliasConBombonas(prev => {
+      const newBombonas = { ...prev };
+      newBombonas[familyId] = newBombonas[familyId]?.filter((_, idx) => idx !== bombonaIndex) ?? [];
+      
+      // If no bombonas left, remove family from selected
+      if (newBombonas[familyId].length === 0) {
+        setFormSelectedFamilies(prev => prev.filter(id => id !== familyId));
+      }
+      
+      return newBombonas;
+    });
+  };
+
+  const handleModalClose = () => {
+    const familyId = selectedFamilyForModal?.familia_id || selectedFamilyForModal?.id;
+    const bombonas = familiasConBombonas[familyId];
+    
+    // Only add to selected families if they have bombonas assigned
+    if (bombonas && bombonas.length > 0) {
+      setFormSelectedFamilies(prev => 
+        prev.includes(familyId) ? prev : [...prev, familyId]
+      );
+    } else {
+      setFormSelectedFamilies(prev => prev.filter(id => id !== familyId));
+    }
+    
+    setIsBombonaModalOpen(false);
+    setSelectedFamilyForModal(null);
   };
 
   const handleSaveCensus = async () => {
@@ -105,14 +177,35 @@ const ClapPage = () => {
       toast.error("Debe seleccionar una fecha de inicio");
       return;
     }
+    if (!esClap) {
+      for (const familyId of formSelectedFamilies) {
+        const bombonas = familiasConBombonas[familyId];
+        if (!bombonas || bombonas.length === 0) {
+          toast.error("Debe agregar al menos una bombona para cada familia seleccionada");
+          return;
+        }
+      }
+    }
     setIsSaving(true);
     try {
+      const buildFamiliasPayload = () => {
+        if (esClap) {
+          return formSelectedFamilies.map(familiaId => ({ familiaId }));
+        } else {
+          return formSelectedFamilies.map(familiaId => ({
+            familiaId,
+            bombonas: familiasConBombonas[familiaId] || [{ tipoBombona: "KG_10", cantidad: 1 }]
+          }));
+        }
+      };
+
       if (selectedCensus) {
         const payload = {
           fecha: fechaInicio,
           fechaCierre: selectedCensus.fechaCierre || null,
           estado: selectedCensus.estado === "finalizado" ? "FINALIZADO" : "EN_ESPERA",
-          familiaIds: formSelectedFamilies
+          esClap,
+          familias: buildFamiliasPayload()
         };
 
         const updatedCensus = await updateCensus(selectedCensus.id, payload);
@@ -124,7 +217,9 @@ const ClapPage = () => {
           ...updatedState,
           familias: formSelectedFamilies,
           totalFamilias: formSelectedFamilies.length,
-          entregas: c.entregas
+          entregas: c.entregas,
+          esClap,
+          familiasConBombonas
         } : c));
 
         toast.success("Censo actualizado correctamente");
@@ -132,7 +227,8 @@ const ClapPage = () => {
         const payload = {
           fecha: fechaInicio,
           consejoComunalId: 1,
-          familiaIds: formSelectedFamilies,
+          esClap,
+          familias: buildFamiliasPayload()
         };
 
         const createdCensus = await createCensus(payload);
@@ -143,6 +239,8 @@ const ClapPage = () => {
           familias: formSelectedFamilies,
           totalFamilias: formSelectedFamilies.length,
           entregas: {},
+          esClap,
+          familiasConBombonas
         };
 
         setCensuses(prev => [newCensus, ...prev]);
@@ -223,10 +321,10 @@ const ClapPage = () => {
       {view === "LIST" && (
         <>
           <HeaderModules
-            title="Gestión de Censos CLAP"
-            description="Control de censos y jornadas de distribución de alimentos"
+            title="Gestión de Jornadas"
+            description="Control de jornadas de distribución CLAP y Gas"
             onActionBtn={isAdmin ? handleCreateNew : undefined}
-            titleBtn={isAdmin ? "Crear Nuevo Censo" : undefined}
+            titleBtn={isAdmin ? "Crear Nueva Jornada" : undefined}
           />
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -243,7 +341,10 @@ const ClapPage = () => {
                       <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider opacity-60">
                         <FaCalendarAlt /> Inicio: {census.fechaInicio}
                       </div>
-                      <h3 className="text-xl font-bold">Censo #{census.id.toString().slice(-4)}</h3>
+                      <h3 className="text-xl font-bold">Jornada #{census.id.toString().slice(-4)}</h3>
+                      <div className={`badge ${census.esClap ? 'badge-info' : 'badge-secondary'} badge-sm font-bold uppercase`}>
+                        {census.esClap ? 'CLAP' : 'Gas'}
+                      </div>
                     </div>
                     <div className={`badge ${census.estado === 'pendiente' ? 'badge-warning' : 'badge-success'} badge-sm font-bold uppercase`}>
                       {census.estado}
@@ -309,7 +410,7 @@ const ClapPage = () => {
               <FaArrowLeft />
             </button>
             <div>
-              <h2 className="text-2xl font-bold">{selectedCensus ? 'Editar Censo' : 'Nuevo Censo'}</h2>
+              <h2 className="text-2xl font-bold">{selectedCensus ? 'Editar Jornada' : 'Nueva Jornada'}</h2>
               <p className="text-sm opacity-60">Seleccione las familias que participarán en este suministro</p>
             </div>
           </div>
@@ -322,6 +423,34 @@ const ClapPage = () => {
                 value={fechaInicio}
                 onChange={(e) => setFechaInicio(e.target.value)}
               />
+            </div>
+
+            <div className="form-control">
+              <label className="label">
+                <span className="label-text font-bold">Tipo de Jornada</span>
+              </label>
+              <div className="flex gap-4">
+                <label className="cursor-pointer label gap-2 border rounded-lg px-4 py-2 hover:bg-base-300 transition-all">
+                  <input 
+                    type="radio" 
+                    name="censusType" 
+                    className="radio radio-primary" 
+                    checked={esClap}
+                    onChange={() => setEsClap(true)}
+                  />
+                  <span className="label-text font-medium">CLAP (Alimentos)</span>
+                </label>
+                <label className="cursor-pointer label gap-2 border rounded-lg px-4 py-2 hover:bg-base-300 transition-all">
+                  <input 
+                    type="radio" 
+                    name="censusType" 
+                    className="radio radio-primary" 
+                    checked={!esClap}
+                    onChange={() => setEsClap(false)}
+                  />
+                  <span className="label-text font-medium">Gas (Bombonas)</span>
+                </label>
+              </div>
             </div>
 
             <div className="space-y-4">
@@ -375,7 +504,7 @@ const ClapPage = () => {
                 onClick={handleSaveCensus}
                 disabled={isSaving}
               >
-                {isSaving ? 'Guardando...' : selectedCensus ? 'Actualizar Censo' : 'Crear Censo'}
+                {isSaving ? 'Guardando...' : selectedCensus ? 'Actualizar Jornada' : 'Crear Jornada'}
               </button>
             </div>
           </div>
@@ -449,6 +578,16 @@ const ClapPage = () => {
           </div>
         </div>
       )}
+
+      <BombonaAssignmentModal
+        isOpen={isBombonaModalOpen}
+        onClose={handleModalClose}
+        family={selectedFamilyForModal}
+        bombonas={familiasConBombonas[selectedFamilyForModal?.familia_id || selectedFamilyForModal?.id] || []}
+        onUpdateBombonas={(idx, field, value) => handleModalBombonaUpdate(selectedFamilyForModal?.familia_id || selectedFamilyForModal?.id, idx, field, value)}
+        onAddBombona={() => handleModalAddBombona(selectedFamilyForModal?.familia_id || selectedFamilyForModal?.id)}
+        onRemoveBombona={(idx) => handleModalRemoveBombona(selectedFamilyForModal?.familia_id || selectedFamilyForModal?.id, idx)}
+      />
     </div>
   );
 };

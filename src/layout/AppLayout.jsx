@@ -16,7 +16,7 @@ import {
 
 const navigation = [
   { name: "Dashboard", path: "/dashboard", icon: FaHome },
-  { name: "CLAP", path: "/clap", icon: FaBoxes },
+  { name: "Jornadas", path: "/clap", icon: FaBoxes },
   { name: "Proyectos", path: "/projects", icon: FaProjectDiagram },
   { name: "Habitantes", path: "/residents", icon: FaUsers },
   { name: "Actas", path: "/proceedings", icon: FaFileAlt },

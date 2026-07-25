@@ -8,7 +8,7 @@ export const getCensuses = async (consejoComunalId = 1) => {
 };
 
 export const getPDFCensuse = async (censuseId) => {
-  const response = await api.get(`/censo/${censuseId}/reporte-clap`, {
+  const response = await api.get(`/censo/${censuseId}/reporte-censo`, {
     responseType: 'blob',
   });
   
