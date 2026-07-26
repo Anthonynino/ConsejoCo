@@ -362,96 +362,105 @@ const ClapPage = () => {
             titleBtn={isAdmin ? "Crear Nueva Jornada" : undefined}
           />
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-            {censuses.map((census) => (
-              <div
-                key={census.id}
-                onClick={() =>
-                  isAdmin &&
-                  census.estado === "pendiente" &&
-                  handleEditCensus(census)
-                }
-                className={`card bg-base-100 shadow-xl border border-base-200 hover:shadow-2xl transition-all group overflow-hidden ${isAdmin && census.estado === "pendiente" ? "cursor-pointer active:scale-95" : ""}`}
-              >
+          {censuses.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-20 opacity-40 grayscale space-y-4">
+              <FaCalendarAlt size={64} />
+              <p className="text-lg font-bold">
+                No hay jornadas registradas aún.
+              </p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+              {censuses.map((census) => (
                 <div
-                  className={`h-2 w-full ${census.estado === "pendiente" ? "bg-warning" : "bg-success"}`}
-                />
-                <div className="card-body p-5">
-                  <div className="flex justify-between items-start">
-                    <div className="space-y-1">
-                      <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider opacity-60">
-                        <FaCalendarAlt /> Inicio: {census.fechaInicio}
+                  key={census.id}
+                  onClick={() =>
+                    isAdmin &&
+                    census.estado === "pendiente" &&
+                    handleEditCensus(census)
+                  }
+                  className={`card bg-base-100 shadow-xl border border-base-200 hover:shadow-2xl transition-all group overflow-hidden ${isAdmin && census.estado === "pendiente" ? "cursor-pointer active:scale-95" : ""}`}
+                >
+                  <div
+                    className={`h-2 w-full ${census.estado === "pendiente" ? "bg-warning" : "bg-success"}`}
+                  />
+                  <div className="card-body p-5">
+                    <div className="flex justify-between items-start">
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider opacity-60">
+                          <FaCalendarAlt /> Inicio: {census.fechaInicio}
+                        </div>
+                        <h3 className="text-xl font-bold">
+                          Jornada #{census.id.toString().slice(-4)}
+                        </h3>
+                        <div
+                          className={`badge ${census.esClap ? "badge-info" : "badge-secondary"} badge-sm font-bold uppercase`}
+                        >
+                          {census.esClap ? "CLAP" : "Gas"}
+                        </div>
                       </div>
-                      <h3 className="text-xl font-bold">
-                        Jornada #{census.id.toString().slice(-4)}
-                      </h3>
                       <div
-                        className={`badge ${census.esClap ? "badge-info" : "badge-secondary"} badge-sm font-bold uppercase`}
+                        className={`badge ${census.estado === "pendiente" ? "badge-warning" : "badge-success"} badge-sm font-bold uppercase`}
                       >
-                        {census.esClap ? "CLAP" : "Gas"}
+                        {census.estado}
                       </div>
                     </div>
-                    <div
-                      className={`badge ${census.estado === "pendiente" ? "badge-warning" : "badge-success"} badge-sm font-bold uppercase`}
-                    >
-                      {census.estado}
-                    </div>
-                  </div>
 
-                  <div className="divider my-2 opacity-50"></div>
+                    <div className="divider my-2 opacity-50"></div>
 
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="flex flex-col">
-                      <span className="text-[10px] uppercase font-bold opacity-50 flex items-center gap-1">
-                        <FaUsers size={10} /> Total Familias
-                      </span>
-                      <span className="text-lg font-bold">
-                        {census.totalFamilias}
-                      </span>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="flex flex-col">
+                        <span className="text-[10px] uppercase font-bold opacity-50 flex items-center gap-1">
+                          <FaUsers size={10} /> Total Familias
+                        </span>
+                        <span className="text-lg font-bold">
+                          {census.totalFamilias}
+                        </span>
+                      </div>
+                      <div className="flex flex-col">
+                        <span className="text-[10px] uppercase font-bold opacity-50 flex items-center gap-1">
+                          <FaClock size={10} /> Creado
+                        </span>
+                        <span className="text-sm font-medium">
+                          {census.fechaCreacion}
+                        </span>
+                      </div>
                     </div>
-                    <div className="flex flex-col">
-                      <span className="text-[10px] uppercase font-bold opacity-50 flex items-center gap-1">
-                        <FaClock size={10} /> Creado
-                      </span>
-                      <span className="text-sm font-medium">
-                        {census.fechaCreacion}
-                      </span>
-                    </div>
-                  </div>
 
-                  <div className="card-actions justify-end mt-6 flex-wrap gap-2">
-                    {census.estado === "pendiente" ? (
-                      <>
-                        {isAdmin && (
-                          <button
-                            className="btn btn-primary btn-sm"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleStartDelivery(census);
-                            }}
-                          >
-                            Iniciar Jornada
-                          </button>
-                        )}
-                      </>
-                    ) : (
-                      <button
-                        className="btn btn-outline btn-sm btn-info gap-2"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleExportReport(census.id);
-                        }}
-                        disabled={isExporting}
-                      >
-                        <FaFileExcel />{" "}
-                        {isExporting ? "Exportando..." : "Exportar Reporte"}
-                      </button>
-                    )}
+                    <div className="card-actions justify-end mt-6 flex-wrap gap-2">
+                      {census.estado === "pendiente" ? (
+                        <>
+                          {isAdmin && (
+                            <button
+                              className="btn btn-primary btn-sm"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleStartDelivery(census);
+                              }}
+                            >
+                              Iniciar Jornada
+                            </button>
+                          )}
+                        </>
+                      ) : (
+                        <button
+                          className="btn btn-outline btn-sm btn-info gap-2"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleExportReport(census.id);
+                          }}
+                          disabled={isExporting}
+                        >
+                          <FaFileExcel />{" "}
+                          {isExporting ? "Exportando..." : "Exportar Reporte"}
+                        </button>
+                      )}
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </>
       )}
 
