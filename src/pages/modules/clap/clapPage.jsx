@@ -1,29 +1,38 @@
 import { useState, useEffect } from "react";
 import HeaderModules from "../../../components/HeaderModules";
 import { toast } from "react-toastify";
-import { 
-  FaSearch, 
-  FaCalendarAlt, 
-  FaUsers, 
-  FaCheckCircle, 
-  FaClock, 
-  FaFileExcel, 
+import {
+  FaSearch,
+  FaCalendarAlt,
+  FaUsers,
+  FaCheckCircle,
+  FaClock,
+  FaFileExcel,
   FaArrowLeft,
   FaCheck,
 } from "react-icons/fa";
 import CustomInput from "../../../components/CustomInput";
-import { createCensus, getCensuses, updateCensus, getPDFCensuse } from "../../../services/censuses";
+import {
+  createCensus,
+  getCensuses,
+  updateCensus,
+  getPDFCensuse,
+} from "../../../services/censuses";
 import { getResidents } from "../../../services/residents";
 import { useAuth } from "../../../context/AuthContext";
 import BombonaAssignmentModal from "./components/BombonaAssignmentModal";
-
 
 const mapApiCensusToState = (censo) => ({
   id: censo.id,
   fechaInicio: censo.fecha ? censo.fecha.split("T")[0] : "",
   totalFamilias: censo._count?.familias ?? censo.familias?.length ?? 0,
   fechaCreacion: censo.fechaCreacion ? censo.fechaCreacion.split("T")[0] : "",
-  estado: censo.estado === "EN_ESPERA" ? "pendiente" : censo.estado === "FINALIZADO" ? "finalizado" : censo.estado?.toLowerCase() ?? "pendiente",
+  estado:
+    censo.estado === "EN_ESPERA"
+      ? "pendiente"
+      : censo.estado === "FINALIZADO"
+        ? "finalizado"
+        : (censo.estado?.toLowerCase() ?? "pendiente"),
   familias: censo.familias?.map((item) => item.familiaId ?? item.id) ?? [],
   entregas: {},
   esClap: censo.esClap ?? true,
@@ -31,7 +40,7 @@ const mapApiCensusToState = (censo) => ({
 });
 
 const ClapPage = () => {
-  const [view, setView] = useState("LIST"); 
+  const [view, setView] = useState("LIST");
   const [censuses, setCensuses] = useState([]);
   const [families, setFamilies] = useState([]);
   const [selectedCensus, setSelectedCensus] = useState(null);
@@ -53,7 +62,7 @@ const ClapPage = () => {
         const payload = response?.data ?? response;
         const censusList = Array.isArray(payload)
           ? payload
-          : payload?.data ?? [];
+          : (payload?.data ?? []);
         const censusesFromApi = censusList.map(mapApiCensusToState);
         setCensuses(censusesFromApi);
       } catch (error) {
@@ -64,7 +73,7 @@ const ClapPage = () => {
 
     const fetchFamilies = async () => {
       try {
-        const response = await getResidents({ limit: 1000 }); // Intentar conseguir todos para la creación de censo
+        const response = await getResidents({ limit: 100 });
         setFamilies(response?.data ?? response ?? []);
       } catch (error) {
         console.error("Error fetching families:", error);
@@ -103,67 +112,75 @@ const ClapPage = () => {
 
   const toggleFamilySelection = (familyId) => {
     if (esClap) {
-      setFormSelectedFamilies(prev => 
-        prev.includes(familyId) 
-          ? prev.filter(id => id !== familyId)
-          : [...prev, familyId]
+      setFormSelectedFamilies((prev) =>
+        prev.includes(familyId)
+          ? prev.filter((id) => id !== familyId)
+          : [...prev, familyId],
       );
     } else {
-      const family = families.find(f => (f.familia_id || f.id) === familyId);
+      const family = families.find((f) => (f.familia_id || f.id) === familyId);
       setSelectedFamilyForModal(family);
       setIsBombonaModalOpen(true);
     }
   };
 
   const handleModalBombonaUpdate = (familyId, bombonaIndex, field, value) => {
-    setFamiliasConBombonas(prev => ({
+    setFamiliasConBombonas((prev) => ({
       ...prev,
-      [familyId]: prev[familyId]?.map((bombona, idx) => 
-        idx === bombonaIndex ? { ...bombona, [field]: value } : bombona
-      ) ?? []
+      [familyId]:
+        prev[familyId]?.map((bombona, idx) =>
+          idx === bombonaIndex ? { ...bombona, [field]: value } : bombona,
+        ) ?? [],
     }));
   };
 
   const handleModalAddBombona = (familyId) => {
-    setFamiliasConBombonas(prev => {
+    setFamiliasConBombonas((prev) => {
       const BOMBONA_TYPES = ["KG_10", "KG_18", "KG_27"];
-      const existingTypes = prev[familyId]?.map(b => b.tipoBombona) || [];
-      const availableType = BOMBONA_TYPES.find(type => !existingTypes.includes(type));
-      
+      const existingTypes = prev[familyId]?.map((b) => b.tipoBombona) || [];
+      const availableType = BOMBONA_TYPES.find(
+        (type) => !existingTypes.includes(type),
+      );
+
       return {
         ...prev,
-        [familyId]: [...(prev[familyId] ?? []), { tipoBombona: availableType || "KG_10", cantidad: 1 }]
+        [familyId]: [
+          ...(prev[familyId] ?? []),
+          { tipoBombona: availableType || "KG_10", cantidad: 1 },
+        ],
       };
     });
   };
 
   const handleModalRemoveBombona = (familyId, bombonaIndex) => {
-    setFamiliasConBombonas(prev => {
+    setFamiliasConBombonas((prev) => {
       const newBombonas = { ...prev };
-      newBombonas[familyId] = newBombonas[familyId]?.filter((_, idx) => idx !== bombonaIndex) ?? [];
-      
+      newBombonas[familyId] =
+        newBombonas[familyId]?.filter((_, idx) => idx !== bombonaIndex) ?? [];
+
       // If no bombonas left, remove family from selected
       if (newBombonas[familyId].length === 0) {
-        setFormSelectedFamilies(prev => prev.filter(id => id !== familyId));
+        setFormSelectedFamilies((prev) => prev.filter((id) => id !== familyId));
       }
-      
+
       return newBombonas;
     });
   };
 
   const handleModalClose = () => {
-    const familyId = selectedFamilyForModal?.familia_id || selectedFamilyForModal?.id;
+    const familyId =
+      selectedFamilyForModal?.familia_id || selectedFamilyForModal?.id;
     const bombonas = familiasConBombonas[familyId];
-    
+
     // Only add to selected families if they have bombonas assigned
     if (bombonas && bombonas.length > 0) {
-      setFormSelectedFamilies(prev => 
-        prev.includes(familyId) ? prev : [...prev, familyId]
+      setFormSelectedFamilies((prev) =>
+        prev.includes(familyId) ? prev : [...prev, familyId],
       );
     } else {
-      setFormSelectedFamilies(prev => prev.filter(id => id !== familyId));
+      setFormSelectedFamilies((prev) => prev.filter((id) => id !== familyId));
     }
-    
+
     setIsBombonaModalOpen(false);
     setSelectedFamilyForModal(null);
   };
@@ -181,7 +198,9 @@ const ClapPage = () => {
       for (const familyId of formSelectedFamilies) {
         const bombonas = familiasConBombonas[familyId];
         if (!bombonas || bombonas.length === 0) {
-          toast.error("Debe agregar al menos una bombona para cada familia seleccionada");
+          toast.error(
+            "Debe agregar al menos una bombona para cada familia seleccionada",
+          );
           return;
         }
       }
@@ -190,11 +209,13 @@ const ClapPage = () => {
     try {
       const buildFamiliasPayload = () => {
         if (esClap) {
-          return formSelectedFamilies.map(familiaId => ({ familiaId }));
+          return formSelectedFamilies.map((familiaId) => ({ familiaId }));
         } else {
-          return formSelectedFamilies.map(familiaId => ({
+          return formSelectedFamilies.map((familiaId) => ({
             familiaId,
-            bombonas: familiasConBombonas[familiaId] || [{ tipoBombona: "KG_10", cantidad: 1 }]
+            bombonas: familiasConBombonas[familiaId] || [
+              { tipoBombona: "KG_10", cantidad: 1 },
+            ],
           }));
         }
       };
@@ -203,24 +224,31 @@ const ClapPage = () => {
         const payload = {
           fecha: fechaInicio,
           fechaCierre: selectedCensus.fechaCierre || null,
-          estado: selectedCensus.estado === "finalizado" ? "FINALIZADO" : "EN_ESPERA",
+          estado:
+            selectedCensus.estado === "finalizado" ? "FINALIZADO" : "EN_ESPERA",
           esClap,
-          familias: buildFamiliasPayload()
+          familias: buildFamiliasPayload(),
         };
 
         const updatedCensus = await updateCensus(selectedCensus.id, payload);
         const updatedPayload = updatedCensus?.data ?? updatedCensus;
         const updatedState = mapApiCensusToState(updatedPayload);
 
-        setCensuses(prev => prev.map(c => c.id === selectedCensus.id ? {
-          ...c,
-          ...updatedState,
-          familias: formSelectedFamilies,
-          totalFamilias: formSelectedFamilies.length,
-          entregas: c.entregas,
-          esClap,
-          familiasConBombonas
-        } : c));
+        setCensuses((prev) =>
+          prev.map((c) =>
+            c.id === selectedCensus.id
+              ? {
+                  ...c,
+                  ...updatedState,
+                  familias: formSelectedFamilies,
+                  totalFamilias: formSelectedFamilies.length,
+                  entregas: c.entregas,
+                  esClap,
+                  familiasConBombonas,
+                }
+              : c,
+          ),
+        );
 
         toast.success("Censo actualizado correctamente");
       } else {
@@ -228,7 +256,7 @@ const ClapPage = () => {
           fecha: fechaInicio,
           consejoComunalId: 1,
           esClap,
-          familias: buildFamiliasPayload()
+          familias: buildFamiliasPayload(),
         };
 
         const createdCensus = await createCensus(payload);
@@ -240,10 +268,10 @@ const ClapPage = () => {
           totalFamilias: formSelectedFamilies.length,
           entregas: {},
           esClap,
-          familiasConBombonas
+          familiasConBombonas,
         };
 
-        setCensuses(prev => [newCensus, ...prev]);
+        setCensuses((prev) => [newCensus, ...prev]);
         toast.success("Censo creado correctamente");
       }
       setView("LIST");
@@ -256,12 +284,12 @@ const ClapPage = () => {
   };
 
   const toggleDeliveryStatus = (familyId) => {
-    setSelectedCensus(prev => ({
+    setSelectedCensus((prev) => ({
       ...prev,
       entregas: {
         ...prev.entregas,
-        [familyId]: !prev.entregas[familyId]
-      }
+        [familyId]: !prev.entregas[familyId],
+      },
     }));
   };
 
@@ -272,19 +300,25 @@ const ClapPage = () => {
     try {
       const payload = {
         fecha: selectedCensus.fechaInicio,
-        fechaCierre: new Date().toISOString().split('T')[0],
-        estado: "FINALIZADO"
+        fechaCierre: new Date().toISOString().split("T")[0],
+        estado: "FINALIZADO",
       };
 
       const updatedCensus = await updateCensus(selectedCensus.id, payload);
       const updatedPayload = updatedCensus?.data ?? updatedCensus;
       const updatedState = mapApiCensusToState(updatedPayload);
 
-      setCensuses(prev => prev.map(c => c.id === selectedCensus.id ? {
-        ...c,
-        ...updatedState,
-        entregas: selectedCensus.entregas
-      } : c));
+      setCensuses((prev) =>
+        prev.map((c) =>
+          c.id === selectedCensus.id
+            ? {
+                ...c,
+                ...updatedState,
+                entregas: selectedCensus.entregas,
+              }
+            : c,
+        ),
+      );
 
       toast.success("¡Jornada de entrega finalizada con éxito!");
       setView("LIST");
@@ -310,10 +344,11 @@ const ClapPage = () => {
     }
   };
 
-  const filteredFamilies = families.filter(f => 
-    (f.nombres || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
-    (f.apellidos || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
-    (f.cedula || "").includes(searchTerm)
+  const filteredFamilies = families.filter(
+    (f) =>
+      (f.nombres || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (f.apellidos || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (f.cedula || "").includes(searchTerm),
   );
 
   return (
@@ -326,27 +361,39 @@ const ClapPage = () => {
             onActionBtn={isAdmin ? handleCreateNew : undefined}
             titleBtn={isAdmin ? "Crear Nueva Jornada" : undefined}
           />
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
             {censuses.map((census) => (
-              <div 
+              <div
                 key={census.id}
-                onClick={() => isAdmin && census.estado === 'pendiente' && handleEditCensus(census)}
-                className={`card bg-base-100 shadow-xl border border-base-200 hover:shadow-2xl transition-all group overflow-hidden ${isAdmin && census.estado === 'pendiente' ? 'cursor-pointer active:scale-95' : ''}`}
+                onClick={() =>
+                  isAdmin &&
+                  census.estado === "pendiente" &&
+                  handleEditCensus(census)
+                }
+                className={`card bg-base-100 shadow-xl border border-base-200 hover:shadow-2xl transition-all group overflow-hidden ${isAdmin && census.estado === "pendiente" ? "cursor-pointer active:scale-95" : ""}`}
               >
-                <div className={`h-2 w-full ${census.estado === 'pendiente' ? 'bg-warning' : 'bg-success'}`} />
+                <div
+                  className={`h-2 w-full ${census.estado === "pendiente" ? "bg-warning" : "bg-success"}`}
+                />
                 <div className="card-body p-5">
                   <div className="flex justify-between items-start">
                     <div className="space-y-1">
                       <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider opacity-60">
                         <FaCalendarAlt /> Inicio: {census.fechaInicio}
                       </div>
-                      <h3 className="text-xl font-bold">Jornada #{census.id.toString().slice(-4)}</h3>
-                      <div className={`badge ${census.esClap ? 'badge-info' : 'badge-secondary'} badge-sm font-bold uppercase`}>
-                        {census.esClap ? 'CLAP' : 'Gas'}
+                      <h3 className="text-xl font-bold">
+                        Jornada #{census.id.toString().slice(-4)}
+                      </h3>
+                      <div
+                        className={`badge ${census.esClap ? "badge-info" : "badge-secondary"} badge-sm font-bold uppercase`}
+                      >
+                        {census.esClap ? "CLAP" : "Gas"}
                       </div>
                     </div>
-                    <div className={`badge ${census.estado === 'pendiente' ? 'badge-warning' : 'badge-success'} badge-sm font-bold uppercase`}>
+                    <div
+                      className={`badge ${census.estado === "pendiente" ? "badge-warning" : "badge-success"} badge-sm font-bold uppercase`}
+                    >
                       {census.estado}
                     </div>
                   </div>
@@ -358,41 +405,46 @@ const ClapPage = () => {
                       <span className="text-[10px] uppercase font-bold opacity-50 flex items-center gap-1">
                         <FaUsers size={10} /> Total Familias
                       </span>
-                      <span className="text-lg font-bold">{census.totalFamilias}</span>
+                      <span className="text-lg font-bold">
+                        {census.totalFamilias}
+                      </span>
                     </div>
                     <div className="flex flex-col">
                       <span className="text-[10px] uppercase font-bold opacity-50 flex items-center gap-1">
                         <FaClock size={10} /> Creado
                       </span>
-                      <span className="text-sm font-medium">{census.fechaCreacion}</span>
+                      <span className="text-sm font-medium">
+                        {census.fechaCreacion}
+                      </span>
                     </div>
                   </div>
 
                   <div className="card-actions justify-end mt-6 flex-wrap gap-2">
-                    {census.estado === 'pendiente' ? (
+                    {census.estado === "pendiente" ? (
                       <>
                         {isAdmin && (
-                        <button 
-                          className="btn btn-primary btn-sm"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleStartDelivery(census);
-                          }}
-                        >
-                          Iniciar Jornada
-                        </button>
+                          <button
+                            className="btn btn-primary btn-sm"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleStartDelivery(census);
+                            }}
+                          >
+                            Iniciar Jornada
+                          </button>
                         )}
                       </>
                     ) : (
-                      <button 
-                        className="btn btn-outline btn-sm btn-info gap-2" 
+                      <button
+                        className="btn btn-outline btn-sm btn-info gap-2"
                         onClick={(e) => {
                           e.stopPropagation();
                           handleExportReport(census.id);
                         }}
                         disabled={isExporting}
                       >
-                        <FaFileExcel /> {isExporting ? 'Exportando...' : 'Exportar Reporte'}
+                        <FaFileExcel />{" "}
+                        {isExporting ? "Exportando..." : "Exportar Reporte"}
                       </button>
                     )}
                   </div>
@@ -406,18 +458,25 @@ const ClapPage = () => {
       {view === "FORM" && (
         <div className="animate-in fade-in slide-in-from-left-4 duration-500">
           <div className="flex items-center gap-4 mb-6">
-            <button className="btn btn-circle btn-ghost" onClick={() => setView("LIST")}>
+            <button
+              className="btn btn-circle btn-ghost"
+              onClick={() => setView("LIST")}
+            >
               <FaArrowLeft />
             </button>
             <div>
-              <h2 className="text-2xl font-bold">{selectedCensus ? 'Editar Jornada' : 'Nueva Jornada'}</h2>
-              <p className="text-sm opacity-60">Seleccione las familias que participarán en este suministro</p>
+              <h2 className="text-2xl font-bold">
+                {selectedCensus ? "Editar Jornada" : "Nueva Jornada"}
+              </h2>
+              <p className="text-sm opacity-60">
+                Seleccione las familias que participarán en este suministro
+              </p>
             </div>
           </div>
 
           <div className="bg-base-200/50 p-6 rounded-3xl border border-base-300 space-y-6">
             <div className="max-w-xs">
-              <CustomInput 
+              <CustomInput
                 label="Fecha de Entrega Estimada"
                 type="date"
                 value={fechaInicio}
@@ -431,20 +490,22 @@ const ClapPage = () => {
               </label>
               <div className="flex gap-4">
                 <label className="cursor-pointer label gap-2 border rounded-lg px-4 py-2 hover:bg-base-300 transition-all">
-                  <input 
-                    type="radio" 
-                    name="censusType" 
-                    className="radio radio-primary" 
+                  <input
+                    type="radio"
+                    name="censusType"
+                    className="radio radio-primary"
                     checked={esClap}
                     onChange={() => setEsClap(true)}
                   />
-                  <span className="label-text font-medium">CLAP (Alimentos)</span>
+                  <span className="label-text font-medium">
+                    CLAP (Alimentos)
+                  </span>
                 </label>
                 <label className="cursor-pointer label gap-2 border rounded-lg px-4 py-2 hover:bg-base-300 transition-all">
-                  <input 
-                    type="radio" 
-                    name="censusType" 
-                    className="radio radio-primary" 
+                  <input
+                    type="radio"
+                    name="censusType"
+                    className="radio radio-primary"
                     checked={!esClap}
                     onChange={() => setEsClap(false)}
                   />
@@ -456,9 +517,9 @@ const ClapPage = () => {
             <div className="space-y-4">
               <div className="flex flex-col md:flex-row justify-between items-center gap-4">
                 <h3 className="font-bold flex items-center gap-2">
-                   Familias registradas ({formSelectedFamilies.length})
+                  Familias registradas ({formSelectedFamilies.length})
                 </h3>
-                <CustomInput 
+                <CustomInput
                   placeholder="Buscar familia..."
                   icon={FaSearch}
                   className="w-full md:w-80"
@@ -472,18 +533,22 @@ const ClapPage = () => {
                   const familyId = family.familia_id || family.id;
                   const isSelected = formSelectedFamilies.includes(familyId);
                   return (
-                    <div 
+                    <div
                       key={familyId}
                       onClick={() => toggleFamilySelection(familyId)}
                       className={`cursor-pointer p-4 rounded-2xl border transition-all flex justify-between items-center ${
-                        isSelected 
-                          ? 'bg-primary/20 border-primary shadow-md' 
-                          : 'bg-base-100 border-base-300 hover:border-primary/50'
+                        isSelected
+                          ? "bg-primary/20 border-primary shadow-md"
+                          : "bg-base-100 border-base-300 hover:border-primary/50"
                       }`}
                     >
                       <div>
-                        <p className="font-bold">{family.nombres} {family.apellidos}</p>
-                        <p className="text-xs opacity-60 font-mono italic">{family.cedula}</p>
+                        <p className="font-bold">
+                          {family.nombres} {family.apellidos}
+                        </p>
+                        <p className="text-xs opacity-60 font-mono italic">
+                          {family.cedula}
+                        </p>
                       </div>
                       {isSelected ? (
                         <div className="bg-primary text-primary-content rounded-full p-1">
@@ -499,12 +564,16 @@ const ClapPage = () => {
             </div>
 
             <div className="flex justify-end pt-4">
-              <button 
-                className="btn btn-primary px-8" 
+              <button
+                className="btn btn-primary px-8"
                 onClick={handleSaveCensus}
                 disabled={isSaving}
               >
-                {isSaving ? 'Guardando...' : selectedCensus ? 'Actualizar Jornada' : 'Crear Jornada'}
+                {isSaving
+                  ? "Guardando..."
+                  : selectedCensus
+                    ? "Actualizar Jornada"
+                    : "Crear Jornada"}
               </button>
             </div>
           </div>
@@ -513,13 +582,20 @@ const ClapPage = () => {
 
       {view === "DELIVERY" && selectedCensus && (
         <div className="animate-in zoom-in-95 duration-500">
-           <div className="flex items-center gap-4 mb-6">
-            <button className="btn btn-circle btn-ghost" onClick={() => setView("LIST")}>
+          <div className="flex items-center gap-4 mb-6">
+            <button
+              className="btn btn-circle btn-ghost"
+              onClick={() => setView("LIST")}
+            >
               <FaArrowLeft />
             </button>
             <div>
-              <h2 className="text-2xl font-bold text-primary">Jornada de Entrega en Curso</h2>
-              <p className="text-sm opacity-60">Seleccione las familias a medida que reciban su beneficio</p>
+              <h2 className="text-2xl font-bold text-primary">
+                Jornada de Entrega en Curso
+              </h2>
+              <p className="text-sm opacity-60">
+                Seleccione las familias a medida que reciban su beneficio
+              </p>
             </div>
           </div>
 
@@ -527,54 +603,66 @@ const ClapPage = () => {
             <div className="stat">
               <div className="stat-title">Progreso de Entrega</div>
               <div className="stat-value text-primary">
-                {Object.values(selectedCensus.entregas).filter(Boolean).length} / {selectedCensus.totalFamilias}
+                {Object.values(selectedCensus.entregas).filter(Boolean).length}{" "}
+                / {selectedCensus.totalFamilias}
               </div>
               <div className="stat-desc">Familias beneficiadas</div>
-              <progress 
-                className="progress progress-primary w-full mt-2" 
-                value={Object.values(selectedCensus.entregas).filter(Boolean).length} 
+              <progress
+                className="progress progress-primary w-full mt-2"
+                value={
+                  Object.values(selectedCensus.entregas).filter(Boolean).length
+                }
                 max={selectedCensus.totalFamilias}
               ></progress>
             </div>
             <div className="stat place-items-end">
-              <button 
+              <button
                 className="btn btn-success btn-lg gap-2"
                 onClick={handleFinishDelivery}
                 disabled={isSaving}
               >
-                <FaCheckCircle /> {isSaving ? 'Procesando...' : 'Terminar Jornada'}
+                <FaCheckCircle />{" "}
+                {isSaving ? "Procesando..." : "Terminar Jornada"}
               </button>
             </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 pb-12">
-            {families.filter(f => selectedCensus.familias.includes(f.familia_id || f.id)).map(family => {
-              const familyId = family.familia_id || family.id;
-              const hasReceived = selectedCensus.entregas[familyId];
-              return (
-                <div 
-                  key={familyId}
-                  className={`card shadow-sm border transition-all ${
-                    hasReceived ? 'bg-success/10 border-success' : 'bg-base-100 border-base-200'
-                  }`}
-                >
-                  <div className="card-body p-4 flex-row justify-between items-center">
-                    <div>
-                      <p className="font-bold leading-tight">{family.nombres} {family.apellidos}</p>
-                      <p className="text-xs opacity-50">{family.cedula}</p>
-                    </div>
-                    <div className="form-control">
-                      <input 
-                        type="checkbox" 
-                        className="checkbox checkbox-success checkbox-lg" 
-                        checked={!!hasReceived}
-                        onChange={() => toggleDeliveryStatus(familyId)}
-                      />
+            {families
+              .filter((f) =>
+                selectedCensus.familias.includes(f.familia_id || f.id),
+              )
+              .map((family) => {
+                const familyId = family.familia_id || family.id;
+                const hasReceived = selectedCensus.entregas[familyId];
+                return (
+                  <div
+                    key={familyId}
+                    className={`card shadow-sm border transition-all ${
+                      hasReceived
+                        ? "bg-success/10 border-success"
+                        : "bg-base-100 border-base-200"
+                    }`}
+                  >
+                    <div className="card-body p-4 flex-row justify-between items-center">
+                      <div>
+                        <p className="font-bold leading-tight">
+                          {family.nombres} {family.apellidos}
+                        </p>
+                        <p className="text-xs opacity-50">{family.cedula}</p>
+                      </div>
+                      <div className="form-control">
+                        <input
+                          type="checkbox"
+                          className="checkbox checkbox-success checkbox-lg"
+                          checked={!!hasReceived}
+                          onChange={() => toggleDeliveryStatus(familyId)}
+                        />
+                      </div>
                     </div>
                   </div>
-                </div>
-              );
-            })}
+                );
+              })}
           </div>
         </div>
       )}
@@ -583,10 +671,30 @@ const ClapPage = () => {
         isOpen={isBombonaModalOpen}
         onClose={handleModalClose}
         family={selectedFamilyForModal}
-        bombonas={familiasConBombonas[selectedFamilyForModal?.familia_id || selectedFamilyForModal?.id] || []}
-        onUpdateBombonas={(idx, field, value) => handleModalBombonaUpdate(selectedFamilyForModal?.familia_id || selectedFamilyForModal?.id, idx, field, value)}
-        onAddBombona={() => handleModalAddBombona(selectedFamilyForModal?.familia_id || selectedFamilyForModal?.id)}
-        onRemoveBombona={(idx) => handleModalRemoveBombona(selectedFamilyForModal?.familia_id || selectedFamilyForModal?.id, idx)}
+        bombonas={
+          familiasConBombonas[
+            selectedFamilyForModal?.familia_id || selectedFamilyForModal?.id
+          ] || []
+        }
+        onUpdateBombonas={(idx, field, value) =>
+          handleModalBombonaUpdate(
+            selectedFamilyForModal?.familia_id || selectedFamilyForModal?.id,
+            idx,
+            field,
+            value,
+          )
+        }
+        onAddBombona={() =>
+          handleModalAddBombona(
+            selectedFamilyForModal?.familia_id || selectedFamilyForModal?.id,
+          )
+        }
+        onRemoveBombona={(idx) =>
+          handleModalRemoveBombona(
+            selectedFamilyForModal?.familia_id || selectedFamilyForModal?.id,
+            idx,
+          )
+        }
       />
     </div>
   );
