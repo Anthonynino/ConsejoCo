@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { toast } from "react-toastify";
 import CardMember from "./components/CardMember";
 import CreateMemberModal from "./components/CreateMemberModal";
+import DeleteModal from "../../../modals/DeleteModal";
 import HeaderModules from "../../../components/HeaderModules";
 import { FaSearch } from "react-icons/fa";
 import CustomInput from "../../../components/CustomInput";
@@ -15,6 +16,8 @@ const MemberPage = () => {
   const [memberToEdit, setMemberToEdit] = useState(null);
   const [members, setMembers] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [memberToDelete, setMemberToDelete] = useState(null);
 
   const fetchMembers = async () => {
     try {
@@ -57,15 +60,22 @@ const MemberPage = () => {
     setIsModalOpen(true);
   };
 
-  const handleDelete = async (id) => {
-    if (window.confirm("¿Estás seguro de eliminar este miembro?")) {
-      try {
-        await deleteMember(id);
-        toast.success("Miembro eliminado correctamente");
-        fetchMembers();
-      } catch {
-        toast.error("Error al eliminar el miembro");
-      }
+  const handleDelete = (id) => {
+    const member = members.find((m) => m.id === id);
+    setMemberToDelete(member);
+    setDeleteModalOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!memberToDelete) return;
+    try {
+      await deleteMember(memberToDelete.id);
+      toast.success("Miembro eliminado correctamente");
+      setDeleteModalOpen(false);
+      setMemberToDelete(null);
+      fetchMembers();
+    } catch {
+      toast.error("Error al eliminar el miembro");
     }
   };
 
@@ -128,6 +138,18 @@ const MemberPage = () => {
           ))}
         </div>
       )}
+
+      <DeleteModal
+        isOpen={deleteModalOpen}
+        onClose={() => {
+          setDeleteModalOpen(false);
+          setMemberToDelete(null);
+        }}
+        title="Eliminar Miembro"
+        message={`¿Estás seguro de que deseas eliminar al miembro "${memberToDelete?.nombre || ""}"? Esta acción no se puede deshacer.`}
+        onConfirm={handleConfirmDelete}
+        actionText="Eliminar"
+      />
     </div>
   );
 };

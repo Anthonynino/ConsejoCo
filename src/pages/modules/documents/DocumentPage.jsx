@@ -5,6 +5,7 @@ import {
 } from "react-icons/fa";
 import DocumentGrid from "./components/DocumentGrid";
 import UploadDocumentModal from "./modal/UploadDocumentModal";
+import DeleteModal from "../../../modals/DeleteModal";
 import HeaderModules from "../../../components/HeaderModules";
 import CustomInput from "../../../components/CustomInput";
 import CustomSelect from "../../../components/CustomSelect";
@@ -22,6 +23,8 @@ const DocumentPage = () => {
   const [error, setError] = useState(null);
   const [filterCategoria, setFilterCategoria] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [documentToDelete, setDocumentToDelete] = useState(null);
 
   const optionsFilter = [
     { value: "", label: "Todos" },
@@ -94,14 +97,19 @@ const DocumentPage = () => {
     fetchDocuments();
   };
 
-  const handleDelete = async (document) => {
-    if (!confirm(`¿Estás seguro de eliminar el documento "${document.nombre}"?`)) {
-      return;
-    }
+  const handleDelete = (document) => {
+    setDocumentToDelete(document);
+    setDeleteModalOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!documentToDelete) return;
 
     try {
-      await deleteDocument(document.id);
+      await deleteDocument(documentToDelete.id);
       toast.success("Documento eliminado exitosamente");
+      setDeleteModalOpen(false);
+      setDocumentToDelete(null);
       // Refresh the document list after successful delete
       const fetchDocuments = async () => {
         try {
@@ -198,6 +206,18 @@ const DocumentPage = () => {
           <p className="text-lg font-bold">No hay documentos registrados aún.</p>
         </div>
       )}
+
+      <DeleteModal
+        isOpen={deleteModalOpen}
+        onClose={() => {
+          setDeleteModalOpen(false);
+          setDocumentToDelete(null);
+        }}
+        title="Eliminar Documento"
+        message={`¿Estás seguro de que deseas eliminar el documento "${documentToDelete?.nombre || ""}"? Esta acción no se puede deshacer.`}
+        onConfirm={handleConfirmDelete}
+        actionText="Eliminar"
+      />
     </div>
   );
 };
