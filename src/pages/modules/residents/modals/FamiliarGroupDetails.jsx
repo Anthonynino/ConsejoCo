@@ -1,7 +1,7 @@
 import { FaPhoneAlt, FaPlus, FaPen, FaTrashAlt } from "react-icons/fa";
 import Avatar from "../../../../components/Avatar";
 
-const FamiliarGroupDetails = ({ familyMembers, onAddMember, onEditMember, onDeleteMember }) => {
+const FamiliarGroupDetails = ({ familyMembers, onAddMember, isAdmin, onEditMember, onDeleteMember }) => {
   const calculateAge = (birthday) => {
     if (!birthday) return "N/A";
     const ageDifMs = Date.now() - new Date(birthday).getTime();
@@ -22,14 +22,15 @@ const FamiliarGroupDetails = ({ familyMembers, onAddMember, onEditMember, onDele
     return (
       <div className="text-center py-8">
         <p className="text-base-content/60 mb-4">No hay familiares registrados</p>
-        <button
-          type="button"
-          onClick={handleAddMember}
-          className="btn btn-primary btn-sm gap-2"
-        >
-          <FaPlus />
-          Agregar Familiar
-        </button>
+        {isAdmin && (
+          <button
+            type="button"
+            onClick={handleAddMember}
+            className="btn btn-primary btn-sm gap-2"
+          >
+            <FaPlus />
+            Agregar Familiar
+          </button>)}
       </div>
     );
   }
@@ -40,14 +41,15 @@ const FamiliarGroupDetails = ({ familyMembers, onAddMember, onEditMember, onDele
         <p className="text-xs opacity-60 uppercase tracking-widest font-bold">
           {familyMembers.length} {familyMembers.length === 1 ? 'familiar' : 'familiares'}
         </p>
-        <button
-          type="button"
-          onClick={handleAddMember}
-          className="btn btn-primary btn-sm gap-2"
-        >
-          <FaPlus />
-          Agregar Familiar
-        </button>
+        {isAdmin && (
+          <button
+            type="button"
+            onClick={handleAddMember}
+            className="btn btn-primary btn-sm gap-2"
+          >
+            <FaPlus />
+            Agregar Familiar
+          </button>)}
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -79,22 +81,23 @@ const FamiliarGroupDetails = ({ familyMembers, onAddMember, onEditMember, onDele
                   <span className="badge badge-secondary badge-outline badge-xs font-bold uppercase">
                     {member.parentesco}
                   </span>
-                  <div className="flex items-center gap-1">
-                    <button
-                      type="button"
-                      onClick={() => onEditMember?.(member)}
-                      className="btn btn-ghost btn-xs btn-circle text-base-content/40 hover:text-primary transition-colors"
-                    >
-                      <FaPen className="text-xs" />
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => onDeleteMember?.(member)}
-                      className="btn btn-ghost btn-xs btn-circle text-base-content/40 hover:text-error transition-colors"
-                    >
-                      <FaTrashAlt className="text-xs" />
-                    </button>
-                  </div>
+                  {isAdmin && (
+                    <div className="flex items-center gap-1">
+                      <button
+                        type="button"
+                        onClick={() => onEditMember?.(member)}
+                        className="btn btn-ghost btn-xs btn-circle text-base-content/40 hover:text-primary transition-colors"
+                      >
+                        <FaPen className="text-xs" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => onDeleteMember?.(member)}
+                        className="btn btn-ghost btn-xs btn-circle text-base-content/40 hover:text-error transition-colors"
+                      >
+                        <FaTrashAlt className="text-xs" />
+                      </button>
+                    </div>)}
                 </div>
 
                 <div className="divider my-2 opacity-20"></div>

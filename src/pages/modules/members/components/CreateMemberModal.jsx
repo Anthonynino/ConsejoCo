@@ -11,7 +11,7 @@ const memberSchema = z.object({
   email: z.string().email("Correo inválido"),
   rol: z.string().min(2, "El rol es requerido"),
   activo: z.boolean(),
-  password: z.string().min(6, "Mínimo 6 caracteres").max(8, "Máximo 8 caracteres").optional().or(z.literal('')),
+  password: z.string().min(8, "Mínimo 8 caracteres").max(20, "Máximo 20 caracteres").optional().or(z.literal('')),
 });
 
 const CreateMemberModal = ({ isOpen, onClose, memberToEdit, onSave }) => {

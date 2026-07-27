@@ -195,6 +195,7 @@ const ResidentPage = () => {
               setEditingFamilyMember(null);
               setIsCreateFamilyMemberOpen(true);
             } : undefined}
+            isAdmin={isAdmin}
             onEditMember={isAdmin ? handleEditFamilyMember : undefined}
             onDeleteMember={isAdmin ? handleDeleteFamilyMember : undefined}
           />

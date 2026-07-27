@@ -57,7 +57,7 @@ const Login = () => {
                 Consejo Comunal
               </h1>
               <p className="text-sm text-base-content/60">
-                Sistema Administrativo
+                Eliezer Otaiza Vivei
               </p>
             </div>
 

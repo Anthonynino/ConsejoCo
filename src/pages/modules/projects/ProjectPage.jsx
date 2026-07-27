@@ -121,7 +121,6 @@ const ProjectPage = () => {
           limit: 50,
         });
         setProjects(data.data);
-        toast.success("Lista de proyectos actualizada");
       } catch (err) {
         setError("Error al cargar los proyectos");
         toast.error("Error al actualizar la lista de proyectos");

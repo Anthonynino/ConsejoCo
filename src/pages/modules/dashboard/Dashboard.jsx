@@ -83,11 +83,8 @@ function Dashboard() {
         <div className="h-24 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div>
             <h1 className="text-3xl md:text-4xl font-bold mb-2">
-              Bienvenido al Sistema
+              ¡Bienvenido!
             </h1>
-{/*             <p className="text-lg opacity-90 mb-4">
-              {consejoNombre}
-            </p> */}
             <div className="flex items-center gap-2 text-sm opacity-80">
               <FaHandsHelping className="text-xl" />
               <span>Gestión comunitaria eficiente y transparente</span>
@@ -168,7 +165,7 @@ function Dashboard() {
                   <span className="text-sm text-base-content/60">
                     Última actualización
                   </span>
-                  <span className="text-sm font-medium">20/06/2025</span>
+                  <span className="text-sm font-medium">27/07/2025</span>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-base-content/60">Estado</span>
