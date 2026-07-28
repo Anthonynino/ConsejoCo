@@ -100,13 +100,10 @@ const EnviromentPage = () => {
               onChange={(e) => setForm({ ...form, direccion: e.target.value })}
             />
 
-            {/* Fila de Años y Meses alineados horizontalmente */}
-            <div className="flex gap-4">
-              <CustomInput label="Reside desde" placeholder="Ej. 2010"
-                value={form.fechaDesde} maxLength={50}
-                onChange={(e) => setForm({ ...form, fechaDesde: e.target.value })}
-                />
-            </div>
+            <CustomInput label="Reside desde" type="date"
+              value={form.fechaDesde}
+              onChange={(e) => setForm({ ...form, fechaDesde: e.target.value })}
+            />
 
             <CustomInput label="Punto de referencia" placeholder="Ej. Frente a la plaza"
               value={form.puntoReferencia} maxLength={100}

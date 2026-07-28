@@ -64,7 +64,7 @@ const ProceedingResidencePage = () => {
       <CustomInput label="Apellido" placeholder="Ej. González" value={form.apellido} maxLength={15} onlyText onChange={(e) => setForm({...form, apellido: e.target.value})} />
       <CustomInput label="Cédula" placeholder="Ej. 12345678" value={form.cedula} maxLength={8} onlyNumbers onChange={(e) => setForm({...form, cedula: e.target.value})} />
       <CustomInput label="Ubicación" placeholder="Ej. Avenida, calle, casa, sector" maxLength={100} value={form.ubicacion} onChange={(e) => setForm({...form, ubicacion: e.target.value})} />
-      <CustomInput label="Tiempo" placeholder="Ej. Hace 2 años" value={form.tiempo} maxLength={20} onChange={(e) => setForm({...form, tiempo: e.target.value})} />
+      <CustomInput label="Reside desde" type="date" value={form.tiempo} onChange={(e) => setForm({...form, tiempo: e.target.value})} />
     </div>
 
     {/* Vista previa */}

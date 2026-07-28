@@ -69,8 +69,8 @@ const GoodConductPage = () => {
           value={form.direccion} maxLength={100}
           onChange={(e) => setForm({ ...form, direccion: e.target.value })}
         />
-        <CustomInput label="Reside desde" placeholder="Ej. 2010"
-          value={form.fechaDesde}  maxLength={50}
+        <CustomInput label="Reside desde" type="date"
+          value={form.fechaDesde}
           onChange={(e) => setForm({ ...form, fechaDesde: e.target.value })}
         />
       </div>

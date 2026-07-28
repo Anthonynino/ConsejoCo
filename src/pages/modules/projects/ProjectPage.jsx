@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { toast } from "react-toastify";
 import {
   FaSearch,
@@ -30,29 +30,36 @@ const ProjectPage = () => {
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [projectToDelete, setProjectToDelete] = useState(null);
 
-  const stats = [
-    {
-      label: "Total Proyectos",
-      value: "12",
-      icon: FaProjectDiagram,
-      color: "text-primary",
-      bg: "bg-primary/10",
-    },
-    {
-      label: "En Ejecución",
-      value: "4",
-      icon: FaHammer,
-      color: "text-warning",
-      bg: "bg-warning/10",
-    },
-    {
-      label: "Finalizados",
-      value: "8",
-      icon: FaCheckCircle,
-      color: "text-success",
-      bg: "bg-success/10",
-    },
-  ];
+  // Calcular estadísticas dinámicamente basadas en los proyectos
+  const stats = useMemo(() => {
+    const total = projects.length;
+    const enEjecucion = projects.filter(p => p.estado === "EN_EJECUCION").length;
+    const finalizados = projects.filter(p => p.estado === "COMPLETADO").length;
+
+    return [
+      {
+        label: "Total Proyectos",
+        value: total.toString(),
+        icon: FaProjectDiagram,
+        color: "text-primary",
+        bg: "bg-primary/10",
+      },
+      {
+        label: "En Ejecución",
+        value: enEjecucion.toString(),
+        icon: FaHammer,
+        color: "text-warning",
+        bg: "bg-warning/10",
+      },
+      {
+        label: "Finalizados",
+        value: finalizados.toString(),
+        icon: FaCheckCircle,
+        color: "text-success",
+        bg: "bg-success/10",
+      },
+    ];
+  }, [projects]);
 
   const optionsEstado = [
     { value: "", label: "Todos" },

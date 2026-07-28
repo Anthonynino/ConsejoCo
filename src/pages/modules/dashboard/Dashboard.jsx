@@ -79,7 +79,7 @@ function Dashboard() {
   return (
     <div className="w-full space-y-6 mx-auto p-6">
       {/* Header de Bienvenida */}
-      <div className="bg-linear-to-r from-primary to-secondary text-primary-content rounded-2xl p-8 shadow-lg">
+      <div className="bg-gradient-to-r from-yellow-500 via-blue-600 to-red-600 text-white rounded-2xl p-8 shadow-lg">
         <div className="h-24 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div>
             <h1 className="text-3xl md:text-4xl font-bold mb-2">

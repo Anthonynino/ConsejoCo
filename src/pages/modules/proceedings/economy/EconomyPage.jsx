@@ -27,7 +27,7 @@ const EconomyPage = () => {
     denominacion:"",
     rubro:"",
     tipoSolicitud: tipoSolicitud[0],
-    direccionComercial: "",
+    direccion: "",
     fechaInicio: "",
     
   })
@@ -108,13 +108,10 @@ const EconomyPage = () => {
               onChange={(e) => setForm({ ...form, direccion: e.target.value })}
             />
 
-            {/* Fila de Años y Meses alineados horizontalmente */}
-            <div className="flex gap-4">
-              <CustomInput label="Fecha de inicio" placeholder="Ej. 2010"
-                value={form.fechaInicio} maxLength={50}
-                onChange={(e) => setForm({ ...form, fechaInicio: e.target.value })}
-                />
-            </div>
+            <CustomInput label="Fecha de inicio" type="date"
+              value={form.fechaInicio}
+              onChange={(e) => setForm({ ...form, fechaInicio: e.target.value })}
+            />
 
             <CustomInput label="Denominacion" placeholder="Ej. tipo de organización: F.C, F.P, A.C, C.A, Otro"
               value={form.denominacion} maxLength={100}
